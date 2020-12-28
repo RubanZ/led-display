@@ -1,18 +1,22 @@
 #pragma once
 
 #include "Arduino.h"
+#include "ArduinoJson.h"
 
 struct SomeData
 {
-    std::string message;
-    int buffer[100];
-    boolean on = true;
-    int8_t codeWork = -1;
-    uint8_t currentAnimation = 0;
-    uint8_t brightness = 50;
+    std::string message; //Буфер сообщения STRING
+    int buffer[100]; //Буфер сообщения INT
+    boolean on = true; //Состояние вкл\выкл
+    int8_t codeWork = 1; //Режим работы при запуске
+    uint8_t currentAnimation = 2; //Текущая анимация
+    uint8_t brightness = 50; //Текущая яркость
+
     long time = 0;
+
     uint8_t width = 0;
     uint8_t height = 0;
+
     int someSecretShit = 0;
 
     std::string toString()
@@ -23,6 +27,18 @@ struct SomeData
         msg += ";";
         msg.append(itoa(someSecretShit, buffer, 10));
         msg += ";";
+        return msg;
+    }
+
+    std::string toJSON()
+    {
+        std::string msg = "";
+        StaticJsonDocument<1024> json;
+        json["on"] = this->on;
+        json["codeWork"] = this->codeWork;
+        json["currentAnimation"] = this->currentAnimation;
+        serializeJson(json, Serial);
+        serializeJson(json, msg);
         return msg;
     }
 };

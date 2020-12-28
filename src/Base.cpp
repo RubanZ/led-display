@@ -3,7 +3,6 @@
 void Base::init()
 {
     initInterfaces();
-    data->someSecretShit = 7;
     matrixClass->init(data);
 
     return;

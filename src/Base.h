@@ -3,15 +3,16 @@
 #include "HandlerBase.h"
 #include "DataStruct.h"
 #include "Configuration.h"
-#include "UART.h"
-#include "I2C.h"
+#include "Interfaces/UART.h"
+#include "Interfaces/I2C.h"
 
 
 #include "Matrix.h"
 
 #include "Animation.h"
-#include "Color.h"
-#include "Rainbow.h"
+#include "Animations/Color.h"
+#include "Animations/Rainbow.h"
+#include "Animations/Fire.h"
 
 
 class Base
@@ -20,9 +21,10 @@ public:
 
     SomeData *data = new SomeData();
     MatrixClass *matrixClass = new MatrixClass();
-    Animation *animation[2] = {
+    Animation *animation[3] = {
         new Color(),
-        new Rainbow()
+        new Rainbow(),
+        new Fire()
     };
     
     HandlerBase *interfaces[2] = {
