@@ -22,10 +22,12 @@
 #define HEIGHT 13 //Размеры отрисовки(Высота)
 struct Configuration
 {
-    Block blocksConfig[3] = {
-        Block(4, 10, 0, 0),
-        Block(2, 13, 4, 0),
-        Block(2, 10, 6, 0)};
+    Block blocksConfig[4] = {
+        Block(1, 25, 0, 0),
+        Block(4, 27, 1, 0),
+        Block(2, 25, 5, 0),
+        Block(2, 22, 7, 3),
+    };
     int c_w = 0;
     int max_w = 8 + 9 + 9;
 };

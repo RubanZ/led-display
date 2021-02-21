@@ -5,6 +5,7 @@
 #include "Configuration.h"
 #include "Interfaces/UART.h"
 #include "Interfaces/I2C.h"
+#include "Interfaces/BLE.h"
 
 
 #include "Matrix.h"
@@ -27,7 +28,8 @@ public:
         new Fire()
     };
     
-    HandlerBase *interfaces[2] = {
+    HandlerBase *interfaces[3] = {
+        new BLEControl(),
         new UARTControl(),
         #ifdef MASTER
         new I2CControlMaster()

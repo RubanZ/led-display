@@ -9,14 +9,19 @@ void Fire::render(MatrixClass *fmatrix)
 void Fire::fireRoutine(MatrixClass *fmatrix)
 {
     fmatrix->fadeToOn(this->brightness);
-    if (this->pcnt >= 100)
+    if (millis() - this->time >= this->delay)
     {
-        shiftUp(fmatrix);
-        generateLine();
-        pcnt = 0;
+        if (this->pcnt >= 100)
+        {
+            shiftUp(fmatrix);
+            generateLine();
+            pcnt = 0;
+        }
+        drawFrame(fmatrix);
+        this->pcnt += 30;
+        this->time = millis();
     }
-    drawFrame(fmatrix);
-    this->pcnt += 30;
+
     return;
 }
 
@@ -71,8 +76,8 @@ void Fire::drawFrame(MatrixClass *fmatrix)
 
                 CRGB color = CHSV(
                     this->fireColor.hue * 2.5 + pgm_read_byte(&(hueMask[y][newX])), // H
-                    255,                                                   // S
-                    (uint8_t)max(0, nextv)                                 // V
+                    255,                                                            // S
+                    (uint8_t)max(0, nextv)                                          // V
                 );
 
                 fmatrix->drawPixelXY(x, y, color);
@@ -103,8 +108,8 @@ void Fire::drawFrame(MatrixClass *fmatrix)
         if (x > 15)
             newX = x - 15;
         CRGB color = CHSV(
-            this->fireColor.hue * 2.5 + pgm_read_byte(&(hueMask[0][newX])),                         // H
-            255,                                                                           // S
+            this->fireColor.hue * 2.5 + pgm_read_byte(&(hueMask[0][newX])),                      // H
+            255,                                                                                 // S
             (uint8_t)(((100.0 - pcnt) * this->matrixValue[0][newX] + pcnt * line[newX]) / 100.0) // V
         );
         fmatrix->drawPixelXY(x, 0, color);

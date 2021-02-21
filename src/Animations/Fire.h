@@ -44,6 +44,8 @@ public:
 
     void drawFrame(MatrixClass *fmatrix);
 
+    uint8_t delay = 100;
+    int64_t time = 0;
     uint8_t brightness = 30;
     bool sparkles = true;
     int pcnt = 0;
@@ -53,7 +55,7 @@ public:
 
 
 
-    uint8_t delay = 100;
+    
     uint8_t delta = 1;
     
     int16_t border = 8 + 9 + 9; //ИСПРАВИТЬ!!!!
@@ -61,5 +63,5 @@ public:
     uint8_t hue = 0;
     CRGB color1 = CRGB(142, 36, 170);
     CRGB color2 = CRGB(255, 110, 64);
-    int64_t time = 0;
+    
 };

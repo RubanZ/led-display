@@ -31,7 +31,7 @@ void UARTControl::handle(SomeData *fdata)
             fdata->codeWork = 0;
     }
     fdata->toJSON();
-    Serial.println();
-    delay(50);
+    //Serial.println();
+    //delay(50);
     return;
 }

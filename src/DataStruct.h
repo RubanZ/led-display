@@ -37,7 +37,7 @@ struct SomeData
         json["on"] = this->on;
         json["codeWork"] = this->codeWork;
         json["currentAnimation"] = this->currentAnimation;
-        serializeJson(json, Serial);
+        //serializeJson(json, Serial);
         serializeJson(json, msg);
         return msg;
     }
