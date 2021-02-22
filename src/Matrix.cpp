@@ -19,7 +19,7 @@ void MatrixClass::handle()
   frame++;
   EVERY_N_SECONDS(1)
   {
-    Serial.print("FPS: " + String(frame) + "\n");
+    ESP_LOGI('Led driver', "fps: %d", frame);
     frame = 0;
   }
 };

@@ -47,23 +47,39 @@ void BLEAppCallbacks::onWrite(BLECharacteristic *Characteristic)
 }
 void BLEAppCallbacks::onRead(BLECharacteristic *Characteristic)
 {
-    //char const *appByte = app.c_str();
-    //char buffer[20];
-    std::string buffer = "";
-    uint16_t countPacket = floor(app.size() / 20);
-    byte packet[2];
-    for (int i = 0; i < 2; i++)
-        packet[1 - i] = (countPacket >> (i * 8));
-    Serial.print("cout packet: "); Serial.println(countPacket);
-    buffer += char(packet[0]);buffer += char(packet[1]);
-    for (uint16_t i = this->package*20; i < this->package*20+20; i++){
-        if (i < this->app.size())
-            buffer+=this->app[i];
-        else
-            break;
+    char buffer[22];
+    std::string msg = "";
+    this->readFile(SPIFFS, "/app.json", buffer);
+    for (int i = 0; i< 22; i++){
+        msg += char(buffer[i]);
     }
-    this->package += 1;
-    Serial.println("send BLE");
-    Serial.println(ESP.getFreeHeap());
-    Characteristic->setValue(buffer);
+    Characteristic->setValue(msg);
+    ESP_LOGV('BLE', "File appInterfeces send");
+}
+
+void BLEAppCallbacks::readFile(fs::FS &fs, const char * path, char *buffer){
+    ESP_LOGV('FileSystem', "Reading file: %s", path);
+    for(uint8_t i = 0; i < 22; i++) buffer[i] = 0;
+    File appfile = fs.open(path);
+    if(!appfile){
+        ESP_LOGE('FileSystem', "Failed to open file for reading");
+        return;
+    }
+
+    uint16_t countPacket = floor(appfile.size() / 20) ;
+    ESP_LOGV('FileSystem', "countPacket: %d", countPacket);
+    for (int i = 0; i < 2; i++)
+        buffer[1 - i] = (countPacket >> (i * 8));
+    
+    appfile.seek(this->package*20);
+    if(appfile.size() - this->package*20 >=  20 ) {
+        appfile.readBytes((buffer + 2), 20);
+        this->package += 1;
+    }
+    else {
+        appfile.readBytes((buffer + 2), appfile.size() - this->package*20);
+        this->package = 0;
+    }
+    
+    appfile.close();
 }

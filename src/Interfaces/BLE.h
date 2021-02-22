@@ -21,9 +21,9 @@ class BLEAppCallbacks : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *Characteristic);
     void onRead(BLECharacteristic *Characteristic);
+    void readFile(fs::FS &fs, const char * path, char *buffer);
 
     uint16_t package = 0;
-    std::string app = "{\"type\":\"Row\",\"crossAxisAlignment\":\"start\",\"mainAxisAlignment\":\"start\",\"mainAxisSize\":\"max\",\"textBaseline\":\"alphabetic\",\"textDirection\":\"ltr\",\"verticalDirection\":\"down\",\"children\":[{\"type\":\"Text\",\"data\":\"Flutter\"},{\"type\":\"RaisedButton\",\"color\":\"##FF00FF\",\"padding\":\"8,8,8,8\",\"textColor\":\"#00FF00\",\"elevation\":8,\"splashColor\":\"#00FF00\",\"child\":{\"type\":\"Text\",\"data\":\"Widget\"}},{\"type\":\"Text\",\"data\":\"Demo\"},{\"type\":\"RaisedButton\",\"color\":\"##FF00FF\",\"padding\":\"8,8,8,8\",\"textColor\":\"#00FF00\",\"elevation\":8,\"splashColor\":\"#00FF00\",\"click_event\":\"route:list\",\"child\":{\"type\":\"Text\",\"data\":\"Go to\"}}]}";
 };
 
 class BLEControl : public HandlerBase

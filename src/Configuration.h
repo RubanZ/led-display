@@ -1,5 +1,7 @@
 #pragma once
 
+#include "esp_log.h"
+#include "FileSystem.h"
 //#define MASTER
 #define USE_DMA
 #include "FastLED.h"
