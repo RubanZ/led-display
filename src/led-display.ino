@@ -6,8 +6,8 @@ void setup(){
     base = new Base();
     base->init();
 
-    initFileSystem();
-    listDir(SPIFFS, "/", 0);
+    // initFileSystem();
+    // listDir(SPIFFS, "/", 0);
 }
 
 

@@ -28,8 +28,8 @@ public:
         new Fire()
     };
     
-    HandlerBase *interfaces[3] = {
-        new BLEControl(),
+    HandlerBase *interfaces[2] = {
+        // new BLEControl(),
         new UARTControl(),
         #ifdef MASTER
         new I2CControlMaster()
