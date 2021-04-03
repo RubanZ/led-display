@@ -14,7 +14,7 @@
 #include "Animations/Color.h"
 #include "Animations/Rainbow.h"
 #include "Animations/Fire.h"
-
+#include "Animations/Confetti.h"
 
 class Base
 {
@@ -25,7 +25,8 @@ public:
     Animation *animation[3] = {
         new Color(),
         new Rainbow(),
-        new Fire()
+        // new Fire(),
+        new Confetti(),
     };
     
     HandlerBase *interfaces[2] = {

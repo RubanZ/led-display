@@ -35,12 +35,12 @@ void Base::handleAnimation()
         animation[data->currentAnimation]->render(matrixClass);
 #if ID_DEVICE == 1
         animation[data->currentAnimation]->toString(data);
-        EVERY_N_SECONDS(20)
+        EVERY_N_SECONDS(100)
         {
-            if (data->currentAnimation == 1)
+            if (data->currentAnimation >= 2)
                 data->currentAnimation = 0;
             else
-                data->currentAnimation = 1;
+                data->currentAnimation++;
         }
 #elif ID_DEVICE >= 2
         animation[data->currentAnimation]->sync(data);

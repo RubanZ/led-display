@@ -5,7 +5,7 @@
 #include "FastLED.h"
 #include "DataStruct.h"
 
-#define ID_DEVICE 4
+#define ID_DEVICE 1
 #define NAME_DEVICE "Seminex"
 
 #define COLOR 0xFF007F            //Основной цвет
@@ -32,7 +32,7 @@ struct Configuration
         Block(2, 27, 17, 0),
         Block(2, 29, 19, 0),
         Block(2, 27, 21, 0),
-        Block(4, 29, 25, 0),
+        Block(4, 29, 23, 0),
         Block(2, 27, 27, 0),
         Block(4, 25, 31, 0),
     };

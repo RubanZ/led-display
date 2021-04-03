@@ -46,6 +46,11 @@ void MatrixClass::fadeToOn(uint8_t val)
     setBrightness(data->brightness);
 }
 
+void MatrixClass::fadeToBlackBy(uint8_t step)
+{
+  matrix->fadeToBlackBy(step);
+}
+
 int8_t MatrixClass::getBlockNumber(int8_t x, int8_t y)
 {
   uint8_t id = 0;
@@ -175,7 +180,8 @@ void MatrixClass::manual(SomeData *fdata)
       memcpy(bufferManual, fdata->buffer, sizeof(bufferManual));
       if (!fdata->buffer[1])
       {
-        if (matrix[fdata->buffer[0] - 1].getParity()){
+        if (matrix[fdata->buffer[0] - 1].getParity())
+        {
           FastLED.clearData();
           matrix[fdata->buffer[0] - 1] = CRGB::Black;
         }
@@ -184,9 +190,8 @@ void MatrixClass::manual(SomeData *fdata)
           FastLED.clearData();
           matrix[fdata->buffer[0] - 1] = CRGB::White;
         }
-          
       }
-      
+
       for (int i = 0; i < 100; i++)
       {
         if (fdata->buffer[i] > 0)
