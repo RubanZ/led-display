@@ -28,11 +28,13 @@ public:
     void drawPixelXY(int8_t x, int8_t y, CRGB color);
     int getPixelNumber(int8_t x, int8_t y);
     int8_t getBlockNumber(int8_t x, int8_t y);
+    int8_t getBlockNumber(int8_t x);
     // функция получения цвета пикселя по его номеру
     uint32_t getPixColor(int thisPixel);
     // функция получения цвета пикселя в матрице по его координатам
     uint32_t getPixColorXY(int8_t x, int8_t y);
 
+    int8_t getYtoX(int8_t x);
 
     uint32_t crgbToHex(CRGB color);
     CRGB hexToCrgb(uint32_t hexValue);

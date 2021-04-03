@@ -68,6 +68,20 @@ int8_t MatrixClass::getBlockNumber(int8_t x, int8_t y)
   return -1;
 };
 
+int8_t MatrixClass::getBlockNumber(int8_t x)
+{
+  uint8_t id = 0;
+  for (Block block : configuration.blocksConfig)
+  {
+    if (x >= block.c_w && x < block.w + block.c_w)
+    {
+      return id;
+    }
+    id += 1;
+  }
+  return -1;
+};
+
 int MatrixClass::getPixelNumber(int8_t x, int8_t y)
 {
   int16_t count = 0;
@@ -97,6 +111,15 @@ uint32_t MatrixClass::getPixColor(int thisPixel)
 uint32_t MatrixClass::getPixColorXY(int8_t x, int8_t y)
 {
   return getPixColor(getPixelNumber(x, y));
+}
+
+int8_t MatrixClass::getYtoX(int8_t x)
+{
+  int8_t block = getBlockNumber(x);
+  if (block != -1)
+    return configuration.blocksConfig[block].height + configuration.blocksConfig[block].cor_height;
+  else
+    return -1;
 }
 
 uint32_t MatrixClass::crgbToHex(CRGB color)
