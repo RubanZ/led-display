@@ -22,7 +22,7 @@ public:
     uint8_t getBrightness();
 
     void fadeToOn(uint8_t val);
-    void fadeToBlackBy(uint8_t step);
+    void fadeToBlack(uint8_t step);
     
     // функция записывающая пиксель по координатам
     void drawPixelXY(int8_t x, int8_t y, CRGB color);

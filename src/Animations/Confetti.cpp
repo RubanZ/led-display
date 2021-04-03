@@ -11,14 +11,12 @@ void Confetti::confetti(MatrixClass *fmatrix)
     fmatrix->fadeToOn(brightness);
     if (millis() - time >= delay1)
     {
-        for (int16_t x = 0; x < fmatrix->data->width; x++)
-        {
-            for (int16_t i = 0; i < count; i++)
-                fmatrix->drawPixelXY(x, random8(fmatrix->data->height), color);
-        }
+        for (int8_t i = 0; i < count; i++)
+            fmatrix->drawPixelXY(random8(fmatrix->data->width), random8(fmatrix->data->height), color);
         time = millis();
-        fmatrix->fadeToBlackBy(delay2);
+        
     }
+    fmatrix->fadeToBlack(delay2);
 }
 
 void Confetti::toString(SomeData *fdata)

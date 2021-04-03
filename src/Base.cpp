@@ -35,9 +35,9 @@ void Base::handleAnimation()
         animation[data->currentAnimation]->render(matrixClass);
 #if ID_DEVICE == 1
         animation[data->currentAnimation]->toString(data);
-        EVERY_N_SECONDS(100)
+        EVERY_N_SECONDS(200)
         {
-            if (data->currentAnimation >= 2)
+            if (data->currentAnimation >= 3)
                 data->currentAnimation = 0;
             else
                 data->currentAnimation++;

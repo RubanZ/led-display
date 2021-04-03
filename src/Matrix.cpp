@@ -46,9 +46,9 @@ void MatrixClass::fadeToOn(uint8_t val)
     setBrightness(data->brightness);
 }
 
-void MatrixClass::fadeToBlackBy(uint8_t step)
+void MatrixClass::fadeToBlack(uint8_t step)
 {
-  matrix->fadeToBlackBy(step);
+  fadeToBlackBy(matrix, WIDTH*HEIGHT, step);
 }
 
 int8_t MatrixClass::getBlockNumber(int8_t x, int8_t y)

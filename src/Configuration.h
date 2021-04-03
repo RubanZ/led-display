@@ -3,6 +3,7 @@
 #include "esp_log.h"
 #include "FileSystem.h"
 #include "FastLED.h"
+FASTLED_USING_NAMESPACE
 #include "DataStruct.h"
 
 #define ID_DEVICE 1

@@ -11,31 +11,31 @@ void Rain::rain(MatrixClass *fmatrix)
     fmatrix->fadeToOn(brightness);
     if (millis() - time >= delay)
     {
+        // fmatrix->fadeToBlack(20);
         for (int8_t x = 0; x < fmatrix->data->width; x++)
         {
-            int8_t y = fmatrix->getYtoX(x);
+            int8_t y = fmatrix->getYtoX(x) - 1;
             uint32_t thisColor = fmatrix->getPixColorXY(x, y);
-            bool isClear = true;
-            uint32_t colorLow = fmatrix->crgbToHex(color / 4);
+            uint32_t colorLow = fmatrix->crgbToHex(color / 4) ;
 
-            for (int8_t i = 0; i < y; i++)
-                if (fmatrix->getPixColorXY(x, i) != 0)
-                {
-                    isClear = false;
-                    break;
-                }
+
 
             if (thisColor == 0)
-                fmatrix->drawPixelXY(x, y - 1, fmatrix->crgbToHex(color) * (random8(0, freq)));
+                fmatrix->drawPixelXY(x, y, fmatrix->crgbToHex(color) );//* (random8(0, freq))
             else if (colorLow > thisColor)
-                fmatrix->drawPixelXY(x, y - 1, 0);
+                fmatrix->drawPixelXY(x, y, 0);
             else
-                fmatrix->drawPixelXY(x, y - 1, fmatrix->hexToCrgb(thisColor).fadeToBlackBy(len));
+                fmatrix->drawPixelXY(x, y , fmatrix->hexToCrgb(thisColor).fadeToBlackBy(len));
             
-            for (int8_t i = 0; i < y - 1; i++)
-                fmatrix->drawPixelXY(x, y, fmatrix->getPixColorXY(x, y + 1));
+            // for (int8_t i = 0; i < y - 1; i++)
+            //     fmatrix->drawPixelXY(x, y, fmatrix->getPixColorXY(x, y + 1));
         }
+        for (int8_t x = 0; x < fmatrix->data->width; x++)
+            for (int8_t y = 0; y < fmatrix->getYtoX(x) - 1; y++){
+                fmatrix->drawPixelXY(x, y, fmatrix->getPixColorXY(x, y + 1));
+            }
 
+                
         time = millis();
     }
 }

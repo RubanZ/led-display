@@ -15,6 +15,7 @@
 #include "Animations/Rainbow.h"
 #include "Animations/Fire.h"
 #include "Animations/Confetti.h"
+#include "Animations/Rain.h"
 
 class Base
 {
@@ -22,11 +23,12 @@ public:
 
     SomeData *data = new SomeData();
     MatrixClass *matrixClass = new MatrixClass();
-    Animation *animation[3] = {
+    Animation *animation[4] = {
         new Color(),
         new Rainbow(),
         // new Fire(),
         new Confetti(),
+        new Rain(),
     };
     
     HandlerBase *interfaces[2] = {

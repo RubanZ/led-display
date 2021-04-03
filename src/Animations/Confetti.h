@@ -15,9 +15,9 @@ public:
     void confetti(MatrixClass *fmatrix);
 
 
-    uint8_t delay1 = 100;
+    uint8_t delay1 = 50;
     uint8_t delay2 = 20;
-    uint8_t count = 2;
+    uint8_t count = 8;
     uint8_t brightness = 30;
     CRGB color = CRGB(255, 90, 30);
     int64_t time = 0;
