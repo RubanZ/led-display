@@ -37,7 +37,7 @@ void Base::handleAnimation()
         animation[data->currentAnimation]->toString(data);
         EVERY_N_SECONDS(40)
         {
-            if (data->currentAnimation >= 2)
+            if (data->currentAnimation >= 3)
                 data->currentAnimation = 0;
             else
                 data->currentAnimation++;

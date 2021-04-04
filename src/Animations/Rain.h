@@ -15,7 +15,7 @@ public:
     void rain(MatrixClass *fmatrix);
 
 
-    uint8_t freq = 20;
+    uint8_t freq = 5;
     uint8_t len = 120;
     uint8_t delay = 80;
     uint8_t brightness = 30;

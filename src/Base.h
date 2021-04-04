@@ -23,8 +23,8 @@ public:
 
     SomeData *data = new SomeData();
     MatrixClass *matrixClass = new MatrixClass();
-    Animation *animation[3] = {
-        // new Color(),
+    Animation *animation[4] = {
+        new Color(),
         new Rainbow(),
         // new Fire(),
         new Confetti(),
