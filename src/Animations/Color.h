@@ -18,7 +18,7 @@ public:
     uint8_t delay = 100;
     uint8_t delta = 1;
     uint8_t brightness = 30;
-    int16_t border = 132; //ИСПРАВИТЬ!!!!
+    int16_t border = 142; //ИСПРАВИТЬ!!!!
     bool dir = 0;
     uint8_t hue = 0;
     CRGB color1 = CRGB(142, 36, 170);
