@@ -6,14 +6,14 @@
 FASTLED_USING_NAMESPACE
 #include "DataStruct.h"
 
-#define ID_DEVICE 4
+#define ID_DEVICE 1
 #define NAME_DEVICE "Seminex"
 
 #define COLOR 0xFF007F            //Основной цвет
 #define LED_TYPE WS2812B          // Тип светодиодов
 #define COLOR_ORDER GRB           // Цветовая можель матрицы
 #define COLOR_CORRECTION 0xFFB0F0 //Значение коррекции цвета
-#define MAX_POWER_MILLIAMPS 5000 // Ограничение по току
+#define MAX_POWER_MILLIAMPS 50000 // Ограничение по току
 #define BRIGHTNESS 50             //Начальная яркость
 #define PIN_DATA 19               // Выход ленты
 
