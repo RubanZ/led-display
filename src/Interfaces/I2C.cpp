@@ -80,7 +80,11 @@ void I2CControlSlave::getData(SomeData *fdata)
     int buffer[2];
     parseArray(message.substr(0, message.find(";", message.find(";") + 1) + 1), ";", buffer);
     fdata->codeWork = buffer[0];
-    fdata->currentAnimation = buffer[1];
+    if (fdata->currentAnimation != buffer[1]){
+        fdata->currentAnimation = buffer[1];
+        fdata->isChange = true;
+    }
+    
     for (uint8_t i = 0; i < 100; i++)
         fdata->buffer[i] = 0;
     parseArray(message.substr(message.find(";", message.find(";") + 1) + 1), ";", fdata->buffer);

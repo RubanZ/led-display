@@ -11,8 +11,11 @@ void Base::init()
 void Base::handle()
 {
     handleInterfaces();
-    handleAnimation();
-    matrixClass->handle();
+    EVERY_N_MILLISECONDS(40){
+        handleAnimation();
+        matrixClass->handle();
+    }
+    
     return;
 }
 
@@ -35,14 +38,20 @@ void Base::handleAnimation()
         animation[data->currentAnimation]->render(matrixClass);
 #if ID_DEVICE == 1
         animation[data->currentAnimation]->toString(data);
-        EVERY_N_SECONDS(40)
+        EVERY_N_SECONDS(100)
         {
-            if (data->currentAnimation >= 3)
+            matrixClass->clear();
+            data->brightness = 0;
+            if (data->currentAnimation >= 4)
                 data->currentAnimation = 0;
             else
                 data->currentAnimation++;
         }
 #elif ID_DEVICE >= 2
+        if (data->isChange){
+            matrixClass->clear();
+            data->isChange = false;
+        }
         animation[data->currentAnimation]->sync(data);
 #endif
     }

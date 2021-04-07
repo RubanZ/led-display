@@ -3,17 +3,17 @@
 #include "esp_log.h"
 #include "FileSystem.h"
 #include "FastLED.h"
-FASTLED_USING_NAMESPACE
+
 #include "DataStruct.h"
 
-#define ID_DEVICE 1
+#define ID_DEVICE 2
 #define NAME_DEVICE "Seminex"
 
 #define COLOR 0xFF007F            //Основной цвет
 #define LED_TYPE WS2812B          // Тип светодиодов
 #define COLOR_ORDER GRB           // Цветовая можель матрицы
 #define COLOR_CORRECTION 0xFFB0F0 //Значение коррекции цвета
-#define MAX_POWER_MILLIAMPS 50000 // Ограничение по току
+#define MAX_POWER_MILLIAMPS 5000 // Ограничение по току
 #define BRIGHTNESS 50             //Начальная яркость
 #define PIN_DATA 19               // Выход ленты
 
@@ -42,6 +42,7 @@ struct Configuration
     };
     int c_w = 0;
     int max_w = 142;
+    int c_count_leds = 0;
 };
 #elif ID_DEVICE == 2
 #define WIDTH 35  //Размеры отрисовки(ширина)
@@ -64,6 +65,7 @@ struct Configuration
     };
     int c_w = 36;
     int max_w = 142;
+    int c_count_leds = 875;
 };
 #elif ID_DEVICE == 3
 #define WIDTH 35  //Размеры отрисовки(ширина)
@@ -86,6 +88,7 @@ struct Configuration
     };
     int c_w = 35 + 36;
     int max_w = 142;
+    int c_count_leds = 875 + 870;
 };
 #elif ID_DEVICE == 4
 #define WIDTH 36  //Размеры отрисовки(ширина)
@@ -111,6 +114,7 @@ struct Configuration
     };
     int c_w = 35 + 36 + 35;
     int max_w = 142;
+    int c_count_leds = 875 + 870 + 808;
 };
 #else
 #pragma GCC error "There is no configuration for this ID "

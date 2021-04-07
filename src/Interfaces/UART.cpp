@@ -24,6 +24,7 @@ void UARTControl::handle(SomeData *fdata)
             for (uint8_t i = 0; i < 100; i++)
                 fdata->buffer[i] = 0;
             parseArray(message, ",", fdata->buffer);
+            fdata->message = message;
         }
         else if (buffer[0] == 8888)
             fdata->codeWork = 1;

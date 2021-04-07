@@ -12,17 +12,27 @@ void MatrixClass::init(SomeData *fdata)
   FastLED.setBrightness(data->brightness);
 };
 
+uint16_t MatrixClass::count()
+{
+  return getPixelNumber(data->width-1, getYtoX(data->width-1)-1);
+}
+
 void MatrixClass::handle()
 {
-  //test();
   FastLED.show();
   frame++;
   EVERY_N_SECONDS(1)
   {
     ESP_LOGI('Led driver', "fps: %d", frame);
+    ESP_LOGI('Led driver', "count leds: %d", count());
     frame = 0;
   }
 };
+
+void MatrixClass::clear()
+{
+  FastLED.clear(true);
+}
 
 void MatrixClass::setBrightness(uint8_t val)
 {
@@ -48,7 +58,7 @@ void MatrixClass::fadeToOn(uint8_t val)
 
 void MatrixClass::fadeToBlack(uint8_t step)
 {
-  fadeToBlackBy(matrix, WIDTH*HEIGHT, step);
+  fadeToBlackBy(matrix, WIDTH * HEIGHT, step);
 }
 
 int8_t MatrixClass::getBlockNumber(int8_t x, int8_t y)
@@ -196,42 +206,24 @@ void MatrixClass::manual(SomeData *fdata)
   }
   else
   {
-    if (isPermutation(fdata->buffer, bufferManual))
-      return;
-    else
+    for (int i = 0; i < 100; i++)
     {
-      memcpy(bufferManual, fdata->buffer, sizeof(bufferManual));
-      if (!fdata->buffer[1])
+      int pixel = fdata->buffer[i] - configuration.c_count_leds;
+      ESP_LOGI('Led driver', "manual: %d (normal: %d)", fdata->buffer[i], pixel);
+      if (pixel > -1)
       {
-        if (matrix[fdata->buffer[0] - 1].getParity())
-        {
-          FastLED.clearData();
-          matrix[fdata->buffer[0] - 1] = CRGB::Black;
-        }
+
+        if (matrix[pixel].getParity())
+          matrix[pixel] = CRGB::Black;
         else
-        {
-          FastLED.clearData();
-          matrix[fdata->buffer[0] - 1] = CRGB::White;
-        }
+          matrix[pixel] = CRGB::White;
+        fdata->buffer[i] = 0;
       }
-
-      for (int i = 0; i < 100; i++)
+      else
       {
-        if (fdata->buffer[i] > 0)
-        {
-
-          if (matrix[fdata->buffer[i] - 1].getParity())
-            matrix[fdata->buffer[i] - 1] = CRGB::Black;
-          else
-            matrix[fdata->buffer[i] - 1] = CRGB::White;
-        }
-        else
-        {
-          return;
-        }
+        break;
       }
     }
-    //FastLED.clearData();
   }
   return;
 }

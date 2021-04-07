@@ -15,8 +15,9 @@ public:
     int bufferManual[100];
 
     void init(SomeData* fdata);
+    uint16_t count();
     void handle();
-
+    void clear();
     
     void setBrightness(uint8_t val);
     uint8_t getBrightness();

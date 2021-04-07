@@ -44,25 +44,25 @@ void Rain::rain(MatrixClass *fmatrix)
 
 void Rain::toString(SomeData *fdata)
 {
-    // char buffer[5];
-    // std::string msg = "";
-    // msg.append(itoa(freq, buffer, 10));
-    // msg += ";";
-    // msg.append(itoa(len, buffer, 10));
-    // msg += ";";
-    // msg.append(itoa(delay, buffer, 10));
-    // msg += ";";
-    // msg.append(itoa(brightness, buffer, 10));
-    // msg += ";";
-    // fdata->message = msg;
+    char buffer[10];
+    std::string msg = "";
+    msg.append(itoa(freq, buffer, 10));
+    msg += ";";
+    msg.append(itoa(len, buffer, 10));
+    msg += ";";
+    msg.append(itoa(delay, buffer, 10));
+    msg += ";";
+    msg.append(itoa(brightness, buffer, 10));
+    msg += ";";
+    fdata->message = msg;
     return;
 }
 
 void Rain::sync(SomeData *fdata)
 {
-    // freq = fdata->buffer[0];
-    // len = fdata->buffer[1];
-    // delay = fdata->buffer[2];
-    // brightness = fdata->buffer[3];
+    freq = fdata->buffer[0];
+    len = fdata->buffer[1];
+    delay = fdata->buffer[2];
+    brightness = fdata->buffer[3];
     return;
 }
