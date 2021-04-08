@@ -20,18 +20,18 @@ void UARTControl::handle(SomeData *fdata)
 
         if (buffer[0] != 8888 && buffer[0] != 9999)
         {
-            fdata->codeWork = -1;
-            for (uint8_t i = 0; i < 100; i++)
+            fdata->codeWork = 2;
+            fdata->isChange = true;
+            for (uint8_t i = 0; i < sizeof(fdata->buffer)/ sizeof(*fdata->buffer); i++)
                 fdata->buffer[i] = 0;
             parseArray(message, ",", fdata->buffer);
-            fdata->message = message;
         }
         else if (buffer[0] == 8888)
             fdata->codeWork = 1;
         else
             fdata->codeWork = 0;
     }
-    fdata->toJSON();
+    // fdata->toJSON();
     //Serial.println();
     //delay(50);
     return;

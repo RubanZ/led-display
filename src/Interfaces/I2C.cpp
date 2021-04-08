@@ -86,8 +86,9 @@ void I2CControlSlave::getData(SomeData *fdata)
         fdata->isChange = true;
     }
     
-    for (uint8_t i = 0; i < 100; i++)
+    for (uint8_t i = 0; i < 200; i++)
         fdata->buffer[i] = 0;
+    
     parseArray(message.substr(message.find(";", message.find(";") + 1) + 1), ";", fdata->buffer);
     return;
 }

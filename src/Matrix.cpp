@@ -24,7 +24,7 @@ void MatrixClass::handle()
   EVERY_N_SECONDS(1)
   {
     ESP_LOGI('Led driver', "fps: %d", frame);
-    ESP_LOGI('Led driver', "count leds: %d", count());
+    // ESP_LOGI('Led driver', "count leds: %d", count());
     frame = 0;
   }
 };
@@ -199,33 +199,11 @@ CRGB MatrixClass::HSVtoRGB(CHSV color) //int H, double S, double V, int output[3
 
 void MatrixClass::manual(SomeData *fdata)
 {
-  setBrightness(data->brightness);
-  if (fdata->codeWork == 0)
-  {
+  fadeToOn(50);
+  if (matrix[1].getParity())
     fill_solid(matrix, data->height * data->width, CRGB::White);
-  }
   else
-  {
-    for (int i = 0; i < 100; i++)
-    {
-      int pixel = fdata->buffer[i] - configuration.c_count_leds;
-      ESP_LOGI('Led driver', "manual: %d (normal: %d)", fdata->buffer[i], pixel);
-      if (pixel > -1)
-      {
-
-        if (matrix[pixel].getParity())
-          matrix[pixel] = CRGB::Black;
-        else
-          matrix[pixel] = CRGB::White;
-        fdata->buffer[i] = 0;
-      }
-      else
-      {
-        break;
-      }
-    }
-  }
-  return;
+    clear();
 }
 
 bool MatrixClass::isPermutation(int *buf1, int *buf2)

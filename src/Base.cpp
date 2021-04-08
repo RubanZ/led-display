@@ -11,11 +11,12 @@ void Base::init()
 void Base::handle()
 {
     handleInterfaces();
-    EVERY_N_MILLISECONDS(40){
+    EVERY_N_MILLISECONDS(40)
+    {
         handleAnimation();
         matrixClass->handle();
     }
-    
+
     return;
 }
 
@@ -33,31 +34,45 @@ void Base::handleInterfaces()
 
 void Base::handleAnimation()
 {
-    if (data->codeWork == 1)
+    if (data->codeWork == 0)
+    {
+        // matrixClass->manual(data);
+        fill_solid(matrixClass->matrix, data->height * data->width, CRGB::White);
+    }
+    else if (data->codeWork == 1)
     {
         animation[data->currentAnimation]->render(matrixClass);
 #if ID_DEVICE == 1
         animation[data->currentAnimation]->toString(data);
-        EVERY_N_SECONDS(100)
+        EVERY_N_SECONDS(10)
         {
             matrixClass->clear();
             data->brightness = 0;
-            if (data->currentAnimation >= 4)
+            data->currentAnimation++;
+            if (data->currentAnimation > sizeof(animation) / sizeof(*animation) - 2)
                 data->currentAnimation = 0;
-            else
-                data->currentAnimation++;
         }
 #elif ID_DEVICE >= 2
-        if (data->isChange){
-            matrixClass->clear();
-            data->isChange = false;
-        }
         animation[data->currentAnimation]->sync(data);
 #endif
     }
     else
     {
-        matrixClass->manual(data);
+        animation[(sizeof(animation) / sizeof(*animation)) - 1]->render(matrixClass);
+#if ID_DEVICE == 1
+        animation[(sizeof(animation) / sizeof(*animation)) - 1]->toString(data);
+#elif ID_DEVICE >= 2
+        animation[(sizeof(animation) / sizeof(*animation)) - 1]->sync(data);
+#endif
     }
-    return;
+    if (data->isChange)
+    {
+        matrixClass->clear();
+        data->isChange = false;
+    }
+    // else
+    // {
+    //     matrixClass->clear();
+    //     ESP_LOGI('Base.h', "clear all");
+    // }
 }
