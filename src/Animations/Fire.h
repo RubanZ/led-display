@@ -46,7 +46,7 @@ public:
 
     uint8_t delay = 100;
     int64_t time = 0;
-    uint8_t brightness = 30;
+    uint8_t brightness = 70;
     bool sparkles = true;
     int pcnt = 0;
     unsigned char line[WIDTH]; // ПЕРЕДЕЛАТЬ

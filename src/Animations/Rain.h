@@ -16,9 +16,9 @@ public:
 
 
     uint8_t freq = 5;
-    uint8_t len = 120;
-    uint8_t delay = 80;
-    uint8_t brightness = 30;
+    uint8_t len = 70;
+    uint8_t delay = 90;
+    uint8_t brightness = 70;
     CRGB color = CRGB(20, 43, 81);
     int64_t time = 0;
 };
