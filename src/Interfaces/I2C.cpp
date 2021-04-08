@@ -81,6 +81,7 @@ void I2CControlSlave::getData(SomeData *fdata)
     parseArray(message.substr(0, message.find(";", message.find(";") + 1) + 1), ";", buffer);
     fdata->codeWork = buffer[0];
     if (fdata->currentAnimation != buffer[1]){
+        fdata->brightness = 0;
         fdata->currentAnimation = buffer[1];
         fdata->isChange = true;
     }

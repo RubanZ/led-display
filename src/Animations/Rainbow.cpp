@@ -33,7 +33,7 @@ void Rainbow::render(MatrixClass *fmatrix)
 
 void Rainbow::toString(SomeData* fdata)
 {
-    char buffer[5];
+    char buffer[10];
     std::string msg = "";
     msg.append(itoa(delay, buffer, 10));
     msg += ";";
