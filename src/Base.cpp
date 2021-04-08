@@ -44,7 +44,7 @@ void Base::handleAnimation()
         animation[data->currentAnimation]->render(matrixClass);
 #if ID_DEVICE == 1
         animation[data->currentAnimation]->toString(data);
-        EVERY_N_SECONDS(10)
+        EVERY_N_SECONDS(60)
         {
             matrixClass->clear();
             data->brightness = 0;
