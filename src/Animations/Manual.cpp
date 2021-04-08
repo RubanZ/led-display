@@ -8,7 +8,7 @@ void Manual::render(MatrixClass *fmatrix)
     {
       int pixel = isOn[i] - fmatrix->configuration.c_count_leds;
       if (pixel > 0)
-          fmatrix->matrix[pixel-1] = CRGB::White;
+          fmatrix->matrix[pixel] = CRGB::White;
       else
         continue;
     }
