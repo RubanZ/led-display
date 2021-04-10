@@ -6,6 +6,7 @@
 #include "Interfaces/UART.h"
 #include "Interfaces/I2C.h"
 #include "Interfaces/BLE.h"
+#include "Interfaces/CLI.h"
 
 
 #include "Matrix.h"
@@ -37,7 +38,8 @@ public:
     
     HandlerBase *interfaces[2] = {
         // new BLEControl(),
-        new UARTControl(),
+        // new UARTControl(),
+        new CLI(),
         #ifdef MASTER
         new I2CControlMaster()
         #else

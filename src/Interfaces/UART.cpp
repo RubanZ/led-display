@@ -18,6 +18,7 @@ void UARTControl::handle(SomeData *fdata)
         int buffer[20];
         buffer[0] = atoi(parseValue(message, ",").c_str());
 
+
         if (buffer[0] != 8888 && buffer[0] != 9999)
         {
             fdata->codeWork = 2;

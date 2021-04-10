@@ -21,7 +21,7 @@ void RoomSimulation::confetti(MatrixClass *fmatrix)
                 fmatrix->drawPixelXY(x - 1, y, color);
             }
             fmatrix->drawPixelXY(x, y, color);
-            fmatrix->drawPixelXY(x + 1, y, color);
+            // fmatrix->drawPixelXY(x + 1, y, color);
         }
 
         time = millis();

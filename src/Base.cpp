@@ -11,7 +11,7 @@ void Base::init()
 void Base::handle()
 {
     handleInterfaces();
-    EVERY_N_MILLISECONDS(40)
+    EVERY_N_MILLISECONDS(20)
     {
         handleAnimation();
         matrixClass->handle();
@@ -44,7 +44,7 @@ void Base::handleAnimation()
         animation[data->currentAnimation]->render(matrixClass);
 #if ID_DEVICE == 1
         animation[data->currentAnimation]->toString(data);
-        EVERY_N_SECONDS(60)
+        EVERY_N_SECONDS(500)
         {
             matrixClass->clear();
             data->brightness = 0;

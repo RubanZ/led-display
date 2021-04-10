@@ -15,6 +15,6 @@ public:
     void fromData(SomeData* fdata);
 
     //Передоваемые параметры
-    uint16_t isOn[150];
+    uint16_t isOn[1000];
     uint8_t brightness = 70;
 };
