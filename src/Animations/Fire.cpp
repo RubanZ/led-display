@@ -1,12 +1,12 @@
 #include "Fire.h"
 
-void Fire::render(MatrixClass *fmatrix)
+void Fire::render(Matrix *fmatrix)
 {
     fireRoutine(fmatrix);
     return;
 }
 
-void Fire::fireRoutine(MatrixClass *fmatrix)
+void Fire::fireRoutine(Matrix *fmatrix)
 {
     fmatrix->fadeToOn(this->brightness);
     if (millis() - this->time >= this->delay)
@@ -33,7 +33,7 @@ void Fire::generateLine()
     }
 }
 
-void Fire::shiftUp(MatrixClass *fmatrix)
+void Fire::shiftUp(Matrix *fmatrix)
 {
     for (uint8_t y = fmatrix->configBlocks->height - 1; y > 0; y--)
     {
@@ -57,7 +57,7 @@ void Fire::shiftUp(MatrixClass *fmatrix)
     }
 }
 
-void Fire::drawFrame(MatrixClass *fmatrix)
+void Fire::drawFrame(Matrix *fmatrix)
 {
     int nextv;
 
@@ -117,7 +117,7 @@ void Fire::drawFrame(MatrixClass *fmatrix)
     }
 }
 
-void Fire::toString(SomeData *fdata)
+void Fire::toString(Data *fdata)
 {
     char buffer[5];
     std::string msg = "";
@@ -134,7 +134,7 @@ void Fire::toString(SomeData *fdata)
     fdata->message = msg;
 }
 
-void Fire::sync(SomeData *fdata)
+void Fire::sync(Data *fdata)
 {
     delay = fdata->buffer[0];
     delta = fdata->buffer[1];

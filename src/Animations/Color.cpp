@@ -1,12 +1,6 @@
 #include "Color.h"
 
-void Color::render(MatrixClass *fmatrix)
-{
-    colorToColor(fmatrix);
-    return;
-}
-
-void Color::colorToColor(MatrixClass *fmatrix)
+void Color::render(Matrix *fmatrix)
 {
     fmatrix->fadeToOn(brightness);
     if (millis() - time >= delay)
@@ -37,24 +31,23 @@ void Color::colorToColor(MatrixClass *fmatrix)
 }
 
 
-void Color::toString(SomeData* fdata)
+void Color::toString(Data* fdata)
 {
-    char buffer[5];
-    std::string msg = "";
+    char buffer[10];
+    std::string msg = "sync ";
     msg.append(itoa(delay, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(delta, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(brightness, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(border, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(dir, buffer, 10));
-    msg += ";";
     fdata->message = msg;
 }
 
-void Color::sync(SomeData* fdata){
+void Color::sync(Data* fdata){
     delay = fdata->buffer[0];
     delta = fdata->buffer[1];
     brightness = fdata->buffer[2];

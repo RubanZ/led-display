@@ -1,12 +1,12 @@
 #include "Rain.h"
 
-void Rain::render(MatrixClass *fmatrix)
+void Rain::render(Matrix *fmatrix)
 {
     rain(fmatrix);
     return;
 }
 
-void Rain::rain(MatrixClass *fmatrix)
+void Rain::rain(Matrix *fmatrix)
 {
     fmatrix->fadeToOn(brightness);
     if (millis() - time >= delay)
@@ -42,23 +42,21 @@ void Rain::rain(MatrixClass *fmatrix)
     }
 }
 
-void Rain::toString(SomeData *fdata)
+void Rain::toString(Data *fdata)
 {
     char buffer[10];
-    std::string msg = "";
+    std::string msg = "sync ";
     msg.append(itoa(freq, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(len, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(delay, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(brightness, buffer, 10));
-    msg += ";";
     fdata->message = msg;
-    return;
 }
 
-void Rain::sync(SomeData *fdata)
+void Rain::sync(Data *fdata)
 {
     freq = fdata->buffer[0];
     len = fdata->buffer[1];

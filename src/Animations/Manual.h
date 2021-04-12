@@ -1,20 +1,25 @@
 #pragma once
 #include "Arduino.h"
+#include "../Configuration.h"
 #include "../DataStruct.h"
 #include "../Animation.h"
 
 class Manual : public Animation
 {
 public:
-    void render(MatrixClass *fmatrix);
+    void render(Matrix *fmatrix);
 
-    void toString(SomeData* fdata);
+    void toString(Data* fdata);
 
-    void sync(SomeData* fdata);
+    void sync(Data* fdata);
 
-    void fromData(SomeData* fdata);
+    void fromData(Data* fdata);
 
     //Передоваемые параметры
-    uint16_t isOn[1000];
-    uint8_t brightness = 70;
+    
+
+    uint8_t type = 0;
+    uint16_t start = 0;
+    uint16_t end = 0;
+    uint8_t brightness = 50;
 };

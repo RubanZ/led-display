@@ -1,12 +1,6 @@
 #include "Confetti.h"
 
-void Confetti::render(MatrixClass *fmatrix)
-{
-    confetti(fmatrix);
-    return;
-}
-
-void Confetti::confetti(MatrixClass *fmatrix)
+void Confetti::render(Matrix *fmatrix)
 {
     fmatrix->fadeToOn(brightness);
     if (millis() - time >= delay1)
@@ -19,22 +13,22 @@ void Confetti::confetti(MatrixClass *fmatrix)
     fmatrix->fadeToBlack(delay2);
 }
 
-void Confetti::toString(SomeData *fdata)
+
+void Confetti::toString(Data *fdata)
 {
     char buffer[5];
-    std::string msg = "";
+    std::string msg = "sync ";
     msg.append(itoa(delay1, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(delay2, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(count, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(brightness, buffer, 10));
-    msg += ";";
     fdata->message = msg;
 }
 
-void Confetti::sync(SomeData *fdata)
+void Confetti::sync(Data *fdata)
 {
     delay1 = fdata->buffer[0];
     delay2 = fdata->buffer[1];

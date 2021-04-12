@@ -1,6 +1,6 @@
 #include "Rainbow.h"
 
-void Rainbow::render(MatrixClass *fmatrix)
+void Rainbow::render(Matrix *fmatrix)
 {
     fmatrix->fadeToOn(brightness);
     if (millis() - time >= delay)
@@ -31,26 +31,25 @@ void Rainbow::render(MatrixClass *fmatrix)
     return;
 }
 
-void Rainbow::toString(SomeData* fdata)
+void Rainbow::toString(Data* fdata)
 {
     char buffer[10];
-    std::string msg = "";
+    std::string msg = "sync ";
     msg.append(itoa(delay, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(delta, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(dir, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(angel, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(brightness, buffer, 10));
-    msg += ";";
+    msg += " ";
     msg.append(itoa(hue, buffer, 10));
-    msg += ";";
     fdata->message = msg;
 }
 
-void Rainbow::sync(SomeData* fdata){
+void Rainbow::sync(Data* fdata){
     delay = fdata->buffer[0];
     delta = fdata->buffer[1];
     dir = fdata->buffer[2];

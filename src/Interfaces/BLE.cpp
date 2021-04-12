@@ -31,7 +31,7 @@ void BLEControl::init()
     appServer->getAdvertising()->start();
 }
 
-void BLEControl::handle(SomeData *fdata)
+void BLEControl::handle(Data *fdata)
 {
     SettingsCharacteristic->setValue(fdata->toString());
 }

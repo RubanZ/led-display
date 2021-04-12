@@ -6,19 +6,19 @@
 class Rain : public Animation
 {
 public:
-    void render(MatrixClass *fmatrix);
+    void render(Matrix *fmatrix);
 
-    void toString(SomeData* fdata);
+    void toString(Data* fdata);
 
-    void sync(SomeData* fdata);
+    void sync(Data* fdata);
 
-    void rain(MatrixClass *fmatrix);
+    void rain(Matrix *fmatrix);
 
 
     uint8_t freq = 5;
     uint8_t len = 70;
     uint8_t delay = 90;
-    uint8_t brightness = 70;
+    uint8_t brightness = 50;
     CRGB color = CRGB(20, 43, 81);
     int64_t time = 0;
 };

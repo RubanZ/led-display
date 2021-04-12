@@ -30,19 +30,19 @@ const unsigned char hueMask[8][16] PROGMEM = {
 class Fire : public Animation
 {
 public:
-    void render(MatrixClass *fmatrix);
+    void render(Matrix *fmatrix);
 
-    void toString(SomeData* fdata);
+    void toString(Data* fdata);
 
-    void sync(SomeData* fdata);
+    void sync(Data* fdata);
 
-    void fireRoutine(MatrixClass *fmatrix);
+    void fireRoutine(Matrix *fmatrix);
 
     void generateLine();
 
-    void shiftUp(MatrixClass *fmatrix);
+    void shiftUp(Matrix *fmatrix);
 
-    void drawFrame(MatrixClass *fmatrix);
+    void drawFrame(Matrix *fmatrix);
 
     uint8_t delay = 100;
     int64_t time = 0;

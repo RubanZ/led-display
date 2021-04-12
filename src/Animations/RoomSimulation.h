@@ -6,13 +6,13 @@
 class RoomSimulation : public Animation
 {
 public:
-    void render(MatrixClass *fmatrix);
+    void render(Matrix *fmatrix);
 
-    void toString(SomeData* fdata);
+    void toString(Data* fdata);
 
-    void sync(SomeData* fdata);
+    void sync(Data* fdata);
 
-    void confetti(MatrixClass *fmatrix);
+    void confetti(Matrix *fmatrix);
 
     CRGB randomColor();
 
