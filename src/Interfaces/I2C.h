@@ -1,32 +1,26 @@
 #pragma once
 
-#include "HandlerBase.h"
+#include "../Interface.h"
 #include <Wire.h>
 #include <WirePacker.h>
 #include <WireSlave.h>
+#include "../Configuration.h"
 
 
 #define SDA_PIN 21
 #define SCL_PIN 22
 
-#define I2C_ADDR (0x04)
+// #define I2C_ADDR (0x08 + ID_DEVICE*2)
 
-class I2CControlMaster : public HandlerBase
+class I2C : public Interface
 {
 public:
     void init();
-    void handle(SomeData* fdata);
+    void handle(Data* fdata); 
 
-    void send(std::string fmessage);
-    void send(SomeData* fdata);
-};
+    void scaner();
 
-class I2CControlSlave : public HandlerBase
-{
-public:
-    void init();
-    void handle(SomeData* fdata);
+    uint8_t devices[10];
+    uint8_t nDevices = 0;
 
-    void get();
-    void getData(SomeData* fdata);
 };

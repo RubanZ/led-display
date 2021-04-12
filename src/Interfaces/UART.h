@@ -2,12 +2,12 @@
 
 
 #include "Arduino.h"
-#include "HandlerBase.h"
+#include "../Interface.h"
 #include "algorithm"
 
-class UARTControl : public HandlerBase
+class UART : public Interface
 {
 public:
     void init();
-    void handle(SomeData* fdata);
+    void handle(Data* fdata);
 };

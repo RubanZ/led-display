@@ -1,18 +1,25 @@
 #include "UART.h"
 
-void UARTControl::init()
+void UART::init()
 {
     Serial.begin(115200);
+    Serial.setTimeout(30);
     return;
 }
 
-void UARTControl::handle(SomeData *fdata)
+void UART::handle(Data *fdata)
 {
-    message.clear();
-
     if (0 < Serial.available())
     {
+        std::string input;
         while (0 < Serial.available())
+            input.append(1, (char)Serial.read());
+        fdata->message = input;
+    }
+}
+
+/*
+ while (0 < Serial.available())
             message.append(1, (char)Serial.read());
 
         int buffer[20];
@@ -35,5 +42,4 @@ void UARTControl::handle(SomeData *fdata)
     // fdata->toJSON();
     //Serial.println();
     //delay(50);
-    return;
-}
+*/

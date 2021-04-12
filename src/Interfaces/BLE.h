@@ -2,7 +2,7 @@
 
 
 #include "Arduino.h"
-#include "HandlerBase.h"
+#include "../Interface.h"
 #include "../Configuration.h"
 #include "algorithm"
 #include <vector>
@@ -26,11 +26,11 @@ class BLEAppCallbacks : public BLECharacteristicCallbacks
     uint16_t package = 0;
 };
 
-class BLEControl : public HandlerBase
+class BLEControl : public Interface
 {
 public:
     void init();
-    void handle(SomeData* fdata);
+    void handle(Data* fdata);
 
 
     
