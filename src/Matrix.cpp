@@ -1,6 +1,6 @@
 #include "Matrix.h"
 
-void MatrixClass::init(SomeData *fdata)
+void Matrix::init(Data *fdata)
 {
   data = fdata;
   data->width = WIDTH;
@@ -12,12 +12,12 @@ void MatrixClass::init(SomeData *fdata)
   FastLED.setBrightness(data->brightness);
 };
 
-uint16_t MatrixClass::count()
+uint16_t Matrix::count()
 {
   return getPixelNumber(data->width-1, getYtoX(data->width-1)-1);
 }
 
-void MatrixClass::handle()
+void Matrix::handle()
 {
   FastLED.show();
   frame++;
@@ -29,24 +29,24 @@ void MatrixClass::handle()
   }
 };
 
-void MatrixClass::clear()
+void Matrix::clear()
 {
   FastLED.clear(true);
 }
 
-void MatrixClass::setBrightness(uint8_t val)
+void Matrix::setBrightness(uint8_t val)
 {
   data->brightness = val;
   FastLED.setBrightness(data->brightness);
   return;
 };
 
-uint8_t MatrixClass::getBrightness()
+uint8_t Matrix::getBrightness()
 {
   return data->brightness;
 };
 
-void MatrixClass::fadeToOn(uint8_t val)
+void Matrix::fadeToOn(uint8_t val)
 {
   if (data->brightness > val)
     setBrightness(data->brightness - 1);
@@ -56,12 +56,12 @@ void MatrixClass::fadeToOn(uint8_t val)
     setBrightness(data->brightness);
 }
 
-void MatrixClass::fadeToBlack(uint8_t step)
+void Matrix::fadeToBlack(uint8_t step)
 {
   fadeToBlackBy(matrix, WIDTH * HEIGHT, step);
 }
 
-int8_t MatrixClass::getBlockNumber(int8_t x, int8_t y)
+int8_t Matrix::getBlockNumber(int8_t x, int8_t y)
 {
   uint8_t id = 0;
   for (Block block : configuration.blocksConfig)
@@ -78,7 +78,7 @@ int8_t MatrixClass::getBlockNumber(int8_t x, int8_t y)
   return -1;
 };
 
-int8_t MatrixClass::getBlockNumber(int8_t x)
+int8_t Matrix::getBlockNumber(int8_t x)
 {
   uint8_t id = 0;
   for (Block block : configuration.blocksConfig)
@@ -92,7 +92,7 @@ int8_t MatrixClass::getBlockNumber(int8_t x)
   return -1;
 };
 
-int MatrixClass::getPixelNumber(int8_t x, int8_t y)
+int Matrix::getPixelNumber(int8_t x, int8_t y)
 {
   int16_t count = 0;
   int8_t block = getBlockNumber(x, y);
@@ -106,24 +106,24 @@ int MatrixClass::getPixelNumber(int8_t x, int8_t y)
     return -1;
 };
 
-void MatrixClass::drawPixelXY(int8_t x, int8_t y, CRGB color)
+void Matrix::drawPixelXY(int8_t x, int8_t y, CRGB color)
 {
   int pixel = getPixelNumber(x, y);
   if (pixel != -1)
     matrix[pixel] = color;
 };
 
-uint32_t MatrixClass::getPixColor(int thisPixel)
+uint32_t Matrix::getPixColor(int thisPixel)
 {
   return (((uint32_t)matrix[thisPixel].r << 16) | ((long)matrix[thisPixel].g << 8) | (long)matrix[thisPixel].b);
 }
 
-uint32_t MatrixClass::getPixColorXY(int8_t x, int8_t y)
+uint32_t Matrix::getPixColorXY(int8_t x, int8_t y)
 {
   return getPixColor(getPixelNumber(x, y));
 }
 
-int8_t MatrixClass::getYtoX(int8_t x)
+int8_t Matrix::getYtoX(int8_t x)
 {
   int8_t block = getBlockNumber(x);
   if (block != -1)
@@ -132,12 +132,12 @@ int8_t MatrixClass::getYtoX(int8_t x)
     return -1;
 }
 
-uint32_t MatrixClass::crgbToHex(CRGB color)
+uint32_t Matrix::crgbToHex(CRGB color)
 {
   return (((uint32_t)color.r << 16) | ((long)color.g << 8) | (long)color.b);
 }
 
-CRGB MatrixClass::hexToCrgb(uint32_t hexValue)
+CRGB Matrix::hexToCrgb(uint32_t hexValue)
 {
   CRGB rgbColor;
   rgbColor.r = ((hexValue >> 16) & 0xFF);
@@ -147,7 +147,7 @@ CRGB MatrixClass::hexToCrgb(uint32_t hexValue)
   return rgbColor;
 }
 
-CRGB MatrixClass::HSVtoRGB(CHSV color) //int H, double S, double V, int output[3]
+CRGB Matrix::HSVtoRGB(CHSV color) //int H, double S, double V, int output[3]
 {
   double C = color.sat * color.val;
   double X = C * (1 - abs(fmod(color.hue / 60.0, 2) - 1));
@@ -197,7 +197,7 @@ CRGB MatrixClass::HSVtoRGB(CHSV color) //int H, double S, double V, int output[3
   return res;
 }
 
-void MatrixClass::manual(SomeData *fdata)
+void Matrix::manual(Data *fdata)
 {
   fadeToOn(50);
   if (matrix[1].getParity())
@@ -206,7 +206,7 @@ void MatrixClass::manual(SomeData *fdata)
     clear();
 }
 
-bool MatrixClass::isPermutation(int *buf1, int *buf2)
+bool Matrix::isPermutation(int *buf1, int *buf2)
 {
   for (int i = 0; i < 100; ++i)
     if (buf1[i] != buf2[i])
@@ -214,7 +214,7 @@ bool MatrixClass::isPermutation(int *buf1, int *buf2)
   return true;
 }
 
-void MatrixClass::test()
+void Matrix::test()
 {
   for (int x = 0; x < 9; x++)
   {

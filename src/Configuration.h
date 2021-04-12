@@ -7,6 +7,7 @@
 #include "DataStruct.h"
 
 #define ID_DEVICE 4
+
 #define NAME_DEVICE "Seminex"
 
 #define COLOR 0xFF007F            //Основной цвет
@@ -44,6 +45,7 @@ struct Configuration
     int max_w = 142;
     int c_count_leds = 0;
 };
+    #define I2C_ADDR (0x04)
 #elif ID_DEVICE == 2
 #define WIDTH 35  //Размеры отрисовки(ширина)
 #define HEIGHT 29 //Размеры отрисовки(Высота)
@@ -67,6 +69,7 @@ struct Configuration
     int max_w = 142;
     int c_count_leds = 875;
 };
+    #define I2C_ADDR (0x07)
 #elif ID_DEVICE == 3
 #define WIDTH 35  //Размеры отрисовки(ширина)
 #define HEIGHT 29 //Размеры отрисовки(Высота)
@@ -90,6 +93,7 @@ struct Configuration
     int max_w = 142;
     int c_count_leds = 875 + 870;
 };
+    #define I2C_ADDR (0x18)
 #elif ID_DEVICE == 4
 #define WIDTH 36  //Размеры отрисовки(ширина)
 #define HEIGHT 29 //Размеры отрисовки(Высота)
@@ -116,6 +120,7 @@ struct Configuration
     int max_w = 142;
     int c_count_leds = 875 + 870 + 808;
 };
+    #define I2C_ADDR (0x98)
 #else
 #pragma GCC error "There is no configuration for this ID "
 #define WIDTH 0  //Размеры отрисовки(ширина)

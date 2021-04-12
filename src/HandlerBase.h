@@ -8,7 +8,7 @@ class HandlerBase
 public:
 
     virtual void init() = 0;
-    virtual void handle(SomeData* fdata) = 0;
+    virtual void handle(Data* fdata) = 0;
 
     std::string message;
     

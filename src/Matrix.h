@@ -5,16 +5,19 @@
 #include "DataStruct.h"
 #include "Configuration.h"
 
-class MatrixClass
+class Matrix
 {
 public:
     Block *configBlocks;
-    SomeData *data;
+    Data *data;
+    Configuration configuration;
+
+
     CRGB matrix[WIDTH*HEIGHT];
     uint8_t frame=0;
-    int bufferManual[100];
 
-    void init(SomeData* fdata);
+
+    void init(Data* fdata);
     uint16_t count();
     void handle();
     void clear();
@@ -41,14 +44,14 @@ public:
     CRGB hexToCrgb(uint32_t hexValue);
     CRGB HSVtoRGB(CHSV color);
 
-    void manual(SomeData *fdata);
+    void manual(Data *fdata);
     
     bool isPermutation(int *buf1, int *buf2);
     void test();
 
 
 
-    Configuration configuration;
+    
 };
 
 

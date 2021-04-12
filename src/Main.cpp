@@ -1,10 +1,10 @@
-#include "Base.h"
+#include "TaskManager.h"
 
-Base *base;
+TaskManager *tasks;
 
 void setup(){
-    base = new Base();
-    base->init();
+    tasks = new TaskManager();
+    tasks->init();
 
     // initFileSystem();
     // listDir(SPIFFS, "/", 0);
@@ -12,7 +12,6 @@ void setup(){
 
 
 void loop(){
-    base->handle();
-    delay(1);
-    
+    tasks->handle();
+    delay(2);
 } 

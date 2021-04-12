@@ -3,10 +3,10 @@
 #include "Arduino.h"
 #include "ArduinoJson.h"
 
-struct SomeData
+struct Data
 {
     std::string message; //Буфер сообщения STRING
-    int buffer[800]; //Буфер сообщения INT
+    int buffer[100]; //Буфер сообщения INT
 
     boolean on = true; //Состояние вкл\выкл
     int8_t codeWork = 1; //Режим работы при запуске
@@ -20,15 +20,12 @@ struct SomeData
     uint8_t height = 0;
 
 
-    int someSecretShit = 0;
 
     std::string toString()
     {
         char buffer[5];
         std::string msg = "";
         msg.append(itoa(codeWork, buffer, 10));
-        msg += ";";
-        msg.append(itoa(someSecretShit, buffer, 10));
         msg += ";";
         return msg;
     }
