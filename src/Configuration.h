@@ -6,7 +6,7 @@
 
 #include "DataStruct.h"
 
-#define ID_DEVICE 4
+#define ID_DEVICE 1
 
 #define NAME_DEVICE "Seminex"
 
@@ -51,7 +51,7 @@ struct Configuration
 #define HEIGHT 29 //Размеры отрисовки(Высота)
 struct Configuration
 {
-    Block blocksConfig[12] = {
+    Block blocksConfig[14] = {
         Block(4, 25,  0, 0),
         Block(2, 27,  4, 0),
         Block(2, 29,  6, 0),
@@ -63,7 +63,9 @@ struct Configuration
         Block(2, 20, 20, 0),
         Block(4, 22, 22, 0),
         Block(2, 20, 26, 0),
-        Block(7, 27, 28, 0),
+        Block(2, 25, 28, 0),
+        Block(5, 27, 30, 0),
+        Block(1, 25, 35, 0),
     };
     int c_w = 36;
     int max_w = 142;
@@ -91,7 +93,7 @@ struct Configuration
     };
     int c_w = 35 + 36;
     int max_w = 142;
-    int c_count_leds = 875 + 870;
+    int c_count_leds = 875 + 864;
 };
     #define I2C_ADDR (0x18)
 #elif ID_DEVICE == 4
@@ -107,7 +109,7 @@ struct Configuration
         Block(2, 27, 10, 0),
         Block(2, 17, 12, 3),
         Block(4, 21, 14, 0),
-        Block(1, 17, 18, 3),
+        Block(1, 20, 18, 0),
         Block(3, 21, 19, 0),
         Block(2, 20, 22, 0),
         Block(2, 24, 24, 0),
@@ -118,7 +120,7 @@ struct Configuration
     };
     int c_w = 35 + 36 + 35;
     int max_w = 142;
-    int c_count_leds = 875 + 870 + 808;
+    int c_count_leds = 875 + 864 + 808;
 };
     #define I2C_ADDR (0x98)
 #else

@@ -12,9 +12,6 @@ void I2C::init()
 
 void I2C::handle(Data *fdata)
 {
-    
-    
-
     for(uint8_t id = 0; id < nDevices; id++)
     {
         WirePacker packer;
@@ -61,8 +58,8 @@ void I2C::scaner()
 
 void I2C::init()
 {
-    // pinMode(SDA_PIN,INPUT_PULLUP);
-    // pinMode(SCL_PIN,INPUT_PULLUP); 
+    pinMode(SDA_PIN,INPUT_PULLUP);
+    pinMode(SCL_PIN,INPUT_PULLUP); 
     bool success = WireSlave.begin(SDA_PIN, SCL_PIN, I2C_ADDR);
     if (!success)
         while (1)
@@ -73,17 +70,15 @@ void I2C::init()
 void I2C::handle(Data *fdata)
 {
     WireSlave.update();
-    ESP_LOGI('I2C', "has data: %d", WireSlave.available());
+    
     if (0 < WireSlave.available())
     {
-        std::string input;
+        fdata->message.clear();
         while (0 < WireSlave.available()){
-            input.append(1, (char)WireSlave.read());
-            delay(1);
+            char c = WireSlave.read();
+            fdata->message.append(1, c);
         }
-
-        fdata->message = input;
-        ESP_LOGI('I2C', "data: %s", input);
+        ESP_LOGI("i2c", "%s",fdata->message.c_str());
     }
     return;
 }

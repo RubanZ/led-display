@@ -7,6 +7,7 @@
 #include "Interface.h"
 #include "Interfaces/UART.h"
 #include "Interfaces/I2C.h"
+#include "Interfaces/WiFi.h"
 #include "Interfaces/BLE.h"
 #include "CLI.h"
 
@@ -39,12 +40,11 @@ public:
         new RoomSimulation()
     };
     
-    Interface *interfaces[3] = {
-        new UART(),
-        new I2C(),
-        // new BLEControl(),
-        new CLI(),
-    };
+    Interface *uart = new UART();
+    Interface *i2c = new I2C();
+    Interface *cli = new CLI(); 
+    Interface *wifi = new WiFiHeandle();
+    // Interface *ble = new BLE();
 
     Animation *manual = new Manual();
 
@@ -55,5 +55,7 @@ public:
     void handleInterfaces();
 
     void handleAnimation();
+
+    void vTaskUART(void *pvParameters);
 };
 

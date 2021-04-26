@@ -45,7 +45,7 @@ void Rain::rain(Matrix *fmatrix)
 void Rain::toString(Data *fdata)
 {
     char buffer[10];
-    std::string msg = "sync ";
+    std::string msg = "effect rain ";
     msg.append(itoa(freq, buffer, 10));
     msg += " ";
     msg.append(itoa(len, buffer, 10));

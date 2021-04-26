@@ -3,7 +3,8 @@
 void UART::init()
 {
     Serial.begin(115200);
-    Serial.setTimeout(30);
+    // Serial.setRxBufferSize(2048);
+    Serial.setTimeout(15);
     return;
 }
 
@@ -15,6 +16,7 @@ void UART::handle(Data *fdata)
         while (0 < Serial.available())
             input.append(1, (char)Serial.read());
         fdata->message = input;
+        ESP_LOGI("uart", "%s",fdata->message.c_str());
     }
 }
 

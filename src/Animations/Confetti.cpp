@@ -17,7 +17,7 @@ void Confetti::render(Matrix *fmatrix)
 void Confetti::toString(Data *fdata)
 {
     char buffer[5];
-    std::string msg = "sync ";
+    std::string msg = "effect confetti ";
     msg.append(itoa(delay1, buffer, 10));
     msg += " ";
     msg.append(itoa(delay2, buffer, 10));

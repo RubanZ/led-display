@@ -46,60 +46,66 @@ void CLI::handle(Data *fdata)
         Command c = cli.getCmd();
         std::string args;
 
-        if (c == cmdSync)
-            for (uint8_t i = 0; i < c.countArgs(); ++i)
-                fdata->buffer[i] = c.getArgument(i).getValue().toInt();
-        else
-        {
-            for (uint8_t i = 0; i < c.countArgs(); ++i)
-                args.append(c.getArgument(i).toString().c_str() + ' ');
+        // if (c == cmdSync)
+        // {
+        //     if (c.getArgument(0).getValue() == "color_to_color")
+        //         fdata->currentAnimation = 0;
+        //     else if (c.getArgument(0).getValue() == "rainbow")
+        //         fdata->currentAnimation = 1;
+        //     else if (c.getArgument(0).getValue() == "confetti")
+        //         fdata->currentAnimation = 2;
+        //     else if (c.getArgument(0).getValue() == "rain")
+        //         fdata->currentAnimation = 3;
+        //     else if (c.getArgument(0).getValue() == "room")
+        //         fdata->currentAnimation = 4;
+        //     for (uint8_t i = 1; i < c.countArgs(); ++i)
+        //         fdata->buffer[i - 1] = c.getArgument(i).getValue().toInt();
+        // }
+        // else
+        // {
+        //     for (uint8_t i = 0; i < c.countArgs(); ++i)
+        //         Serial.print(c.getArgument(i).toString().c_str());
 
-            ESP_LOGI('CLI', "> %s  %s", c.getName(), args);
-        }
+        //     Serial.println();
+        // }
 
         if (c == cmdMode)
         {
             fdata->codeWork = c.getArg(0).getValue().toInt();
+            fdata->isChange = true;
             ESP_LOGI('CLI', "Set codeWork: %d", fdata->codeWork);
         }
         else if (c == cmdFill)
         {
-            // Argument a = c.getArgument("a");
-            if (c.getArgument("a").isSet())
-            {
-                ESP_LOGI('CLI', "fill (start: %s end: %s)", c.getArgument("s").getValue(), c.getArgument("e").getValue());
-                fdata->buffer[0] = 1;
-                fdata->buffer[1] = c.getArgument("s").getValue().toInt();
-                fdata->buffer[2] = c.getArgument("e").getValue().toInt();
-            }
-            else
-            {
-                ESP_LOGI('CLI', "fill %s)", c.getArgument(1).getValue());
-                fdata->buffer[0] = 2;
-                fdata->buffer[1] = c.getArgument(1).getValue().toInt();
-            }
+            // for (uint16_t i = 0; i < sizeof(fdata->buffer) / sizeof(*fdata->buffer); i++)
+            //     fdata->buffer[i] = 0;
+            // if (c.getArgument("a").isSet())
+            // {
+            //     ESP_LOGI('CLI', "fill (start: %s end: %s)", c.getArgument("s").getValue(), c.getArgument("e").getValue());
+            //     fdata->buffer[0] = 1;
+            //     fdata->buffer[1] = c.getArgument("s").getValue().toInt();
+            //     fdata->buffer[2] = c.getArgument("e").getValue().toInt();
+            // }
+            // else
+            // {
+            //     ESP_LOGI('CLI', "fill %s)", c.getArgument(1).getValue());
+            //     fdata->buffer[0] = 2;
+            //     fdata->buffer[1] = c.getArgument(1).getValue().toInt();
+            // }
         }
         else if (c == cmdFillArray)
         {
-            Serial.println("array");
+            for (uint16_t i = 0; i < sizeof(fdata->buffer) / sizeof(*fdata->buffer); i++)
+                fdata->buffer[i] = -1;
+            fdata->buffer[0] = 3;
             for (int i = 0; i < c.countArgs(); ++i)
-            {
-                Argument arg = c.getArgument(i);
-                fdata->buffer[i] = arg.getValue().toInt();
-                if (i > 0)
-                    Serial.print(",");
-                Serial.print("\"");
-                Serial.print(arg.getValue());
-                Serial.print("\"");
-            }
-            Serial.println();
+                fdata->buffer[i] = c.getArgument(i).getValue().toInt();
         }
         else if (c == cmdClear)
         {
             fdata->isChange = true;
             for (uint16_t i = 0; i < sizeof(fdata->buffer) / sizeof(*fdata->buffer); i++)
-                fdata->buffer[i] = 0;
-            Serial.println("is clear");
+                fdata->buffer[i] = -1;
         }
         else if (c == cmdEffect)
         {
@@ -150,4 +156,5 @@ void CLI::handle(Data *fdata)
             }
         }
     }
+    fdata->message.clear();
 }

@@ -34,7 +34,7 @@ void Color::render(Matrix *fmatrix)
 void Color::toString(Data* fdata)
 {
     char buffer[10];
-    std::string msg = "sync ";
+    std::string msg = "effect color_to_color ";
     msg.append(itoa(delay, buffer, 10));
     msg += " ";
     msg.append(itoa(delta, buffer, 10));

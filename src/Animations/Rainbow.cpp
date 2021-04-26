@@ -34,7 +34,7 @@ void Rainbow::render(Matrix *fmatrix)
 void Rainbow::toString(Data* fdata)
 {
     char buffer[10];
-    std::string msg = "sync ";
+    std::string msg = "effect rainbow ";
     msg.append(itoa(delay, buffer, 10));
     msg += " ";
     msg.append(itoa(delta, buffer, 10));
