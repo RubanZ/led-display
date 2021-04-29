@@ -410,8 +410,6 @@ void vTaskI2C(void *pvParameters)
 
 void vTaskWIFI(void *pvParameters)
 {
-    const char *ssid = "iot";
-    const char *password = "realred34";
 #define TCP_BUFFER_SIZE 1024
     WiFiServer server;
     uint8_t buff[TCP_BUFFER_SIZE];
@@ -432,10 +430,11 @@ void vTaskWIFI(void *pvParameters)
         WiFiClient client = server.available();
         if (client)
         {
-            data->codeWork = 2;
+            
             while (client.connected())
             {
                 int size = 0;
+                data->codeWork = 2;
                 while ((size = client.available()))
                 {
                     size = (size >= TCP_BUFFER_SIZE ? TCP_BUFFER_SIZE : size);
@@ -467,9 +466,10 @@ void vTaskWIFI(void *pvParameters)
                 }
                 vTaskDelay(1);
             }
-            client.stop();
+            
             data->codeWork = 1;
         }
-        vTaskDelay(10);
+        client.stop();
+        vTaskDelay(30);
     }
 }
