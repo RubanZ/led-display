@@ -31,7 +31,7 @@ void Matrix::handle()
 
 void Matrix::clear()
 {
-  FastLED.clear(true);
+  memset8( matrix, 0, count() * sizeof(CRGB));
 }
 
 void Matrix::setBrightness(uint8_t val)
