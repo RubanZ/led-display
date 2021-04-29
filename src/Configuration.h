@@ -6,7 +6,7 @@
 
 #include "DataStruct.h"
 
-#define ID_DEVICE 1
+#define ID_DEVICE 2
 #define NAME_DEVICE "Seminex"
 
 #define COLOR 0xFF007F            //Основной цвет

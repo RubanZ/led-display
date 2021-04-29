@@ -68,7 +68,7 @@ void loop()
         data->messageI2C = "mode 0";
         break;
     }
-    case 1:
+    default:
     {
         vTaskResume(animationTask);
         break;
@@ -99,54 +99,70 @@ void vTaskAnimation(void *pvParameters)
     Animation *rain = new Rain();
     Animation *room = new RoomSimulation();
 
+    Animation *manual = new Manual();
+
     while (true)
     {
-        switch (data->currentAnimation)
+        switch (data->codeWork)
         {
-        case 0:
-#ifdef MASTER
-            color->toString(data);
-#else
-            color->sync(data);
-#endif
-            color->render(matrix);
-            break;
-        case 1:
-#ifdef MASTER
-            rainbow->toString(data);
-#else
-            rainbow->sync(data);
-#endif
-            rainbow->render(matrix);
-            break;
         case 2:
-#ifdef MASTER
-            confetti->toString(data);
-#else
-            confetti->sync(data);
-#endif
-            confetti->render(matrix);
-            break;
-        case 3:
-#ifdef MASTER
-            rain->toString(data);
-#else
-            rain->sync(data);
-#endif
-            rain->render(matrix);
-            break;
-        case 4:
-#ifdef MASTER
-            room->toString(data);
-#else
-            room->sync(data);
-#endif
-            room->render(matrix);
-            break;
-        default:
-            data->currentAnimation = 0;
+        {
+            manual->sync(data);
+            manual->render(matrix);
             break;
         }
+        default:
+        {
+            switch (data->currentAnimation)
+            {
+            case 0:
+#ifdef MASTER
+                color->toString(data);
+#else
+                color->sync(data);
+#endif
+                color->render(matrix);
+                break;
+            case 1:
+#ifdef MASTER
+                rainbow->toString(data);
+#else
+                rainbow->sync(data);
+#endif
+                rainbow->render(matrix);
+                break;
+            case 2:
+#ifdef MASTER
+                confetti->toString(data);
+#else
+                confetti->sync(data);
+#endif
+                confetti->render(matrix);
+                break;
+            case 3:
+#ifdef MASTER
+                rain->toString(data);
+#else
+                rain->sync(data);
+#endif
+                rain->render(matrix);
+                break;
+            case 4:
+#ifdef MASTER
+                room->toString(data);
+#else
+                room->sync(data);
+#endif
+                room->render(matrix);
+                break;
+            default:
+                data->currentAnimation = 0;
+                break;
+            }
+            break;
+        }
+        }
+
         matrix->handle();
 #ifdef MASTER
         EVERY_N_SECONDS(20)
@@ -277,7 +293,7 @@ void vTaskCLI(void *pvParameters)
                 for (uint16_t i = 0; i < sizeof(data->buffer) / sizeof(*data->buffer); i++)
                     data->buffer[i] = -1;
                 for (uint8_t i = 1; i < c.countArgs(); i++)
-                    data->buffer[i-1] = c.getArgument(i).getValue().toInt();
+                    data->buffer[i - 1] = c.getArgument(i).getValue().toInt();
 
                 ESP_LOGI('CLI', "On effect");
             }
