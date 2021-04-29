@@ -131,7 +131,7 @@ void Fire::toString(Data *fdata)
     msg += ";";
     msg.append(itoa(dir, buffer, 10));
     msg += ";";
-    fdata->message = msg;
+    fdata->messageI2C = msg;
 }
 
 void Fire::sync(Data *fdata)

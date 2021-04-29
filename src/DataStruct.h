@@ -6,6 +6,7 @@
 struct Data
 {
     std::string message; //Буфер сообщения STRING
+    std::string messageI2C; //Буфер сообщения STRING
     int buffer[500]; //Буфер сообщения INT
 
     boolean on = true; //Состояние вкл\выкл

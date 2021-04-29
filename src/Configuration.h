@@ -7,7 +7,6 @@
 #include "DataStruct.h"
 
 #define ID_DEVICE 1
-
 #define NAME_DEVICE "Seminex"
 
 #define COLOR 0xFF007F            //Основной цвет
@@ -25,7 +24,7 @@
 struct Configuration
 {
     Block blocksConfig[15] = {
-        Block(2, 24,  0, 0),
+        Block(2, 10,  0, 0), // 24
         Block(2, 26,  2, 0),
         Block(2, 24,  4, 0),
         Block(4, 26,  6, 0),

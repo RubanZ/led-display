@@ -30,13 +30,11 @@ TaskHandle_t i2cTask;
 TaskHandle_t wifiTask;
 TaskHandle_t cliTask;
 TaskHandle_t animationTask;
-TaskHandle_t manualTask;
 void vTaskUART(void *pvParameters);
 void vTaskI2C(void *pvParameters);
 void vTaskWIFI(void *pvParameters);
 void vTaskCLI(void *pvParameters);
 void vTaskAnimation(void *pvParameters);
-void vTaskManual(void *pvParameters);
 
 void setup()
 {
@@ -52,10 +50,7 @@ void setup()
         vTaskCLI, "CLI", 3196, NULL, 2, &cliTask, 1);
     xTaskCreatePinnedToCore(
         vTaskAnimation, "Animation", 3192, NULL, 1, &animationTask, 1);
-    xTaskCreatePinnedToCore(
-        vTaskManual, "Manual", 3192, NULL, 2, &manualTask, 1);
 
-    delay(350);
     // vTaskSuspend(animationTask);
     // initFileSystem();
     // listDir(SPIFFS, "/", 0);
@@ -68,20 +63,14 @@ void loop()
     {
     case 0:
     {
+        matrix->clear();
         vTaskSuspend(animationTask);
-        vTaskSuspend(manualTask);
+        data->messageI2C = "mode 0";
         break;
     }
     case 1:
     {
-        vTaskSuspend(manualTask);
         vTaskResume(animationTask);
-        break;
-    }
-    case 2:
-    {
-        vTaskSuspend(animationTask);
-        vTaskResume(manualTask);
         break;
     }
     }
@@ -115,43 +104,43 @@ void vTaskAnimation(void *pvParameters)
         switch (data->currentAnimation)
         {
         case 0:
-// #ifdef MASTER
-//             color->toString(data);
-// #else
-//             color->sync(data);
-// #endif
+#ifdef MASTER
+            color->toString(data);
+#else
+            color->sync(data);
+#endif
             color->render(matrix);
             break;
         case 1:
-// #ifdef MASTER
-//             rainbow->toString(data);
-// #else
-//             rainbow->sync(data);
-// #endif
+#ifdef MASTER
+            rainbow->toString(data);
+#else
+            rainbow->sync(data);
+#endif
             rainbow->render(matrix);
             break;
         case 2:
-// #ifdef MASTER
-//             confetti->toString(data);
-// #else
-//             confetti->sync(data);
-// #endif
+#ifdef MASTER
+            confetti->toString(data);
+#else
+            confetti->sync(data);
+#endif
             confetti->render(matrix);
             break;
         case 3:
-// #ifdef MASTER
-//             rain->toString(data);
-// #else
-//             rain->sync(data);
-// #endif
+#ifdef MASTER
+            rain->toString(data);
+#else
+            rain->sync(data);
+#endif
             rain->render(matrix);
             break;
         case 4:
-// #ifdef MASTER
-//             room->toString(data);
-// #else
-//             room->sync(data);
-// #endif
+#ifdef MASTER
+            room->toString(data);
+#else
+            room->sync(data);
+#endif
             room->render(matrix);
             break;
         default:
@@ -159,7 +148,7 @@ void vTaskAnimation(void *pvParameters)
             break;
         }
         matrix->handle();
-// #ifdef MASTER
+#ifdef MASTER
         EVERY_N_SECONDS(20)
         {
             matrix->clear();
@@ -167,14 +156,17 @@ void vTaskAnimation(void *pvParameters)
             data->currentAnimation++;
             // currentAnimation++;
         };
-// #endif
-
+#endif
+        // rain->render(matrix);
+        // matrix->handle();
         vTaskDelay(40);
     }
 }
 
 void vTaskCLI(void *pvParameters)
 {
+    std::string lastCommand;
+    // std::string newCommand;
     // Create CLI Object
     SimpleCLI cli;
 
@@ -217,7 +209,14 @@ void vTaskCLI(void *pvParameters)
     while (true)
     {
         if (data->message.length() > 0)
-            cli.parse(data->message.c_str());
+        {
+            if (lastCommand != data->message)
+            {
+                lastCommand = data->message;
+                cli.parse(lastCommand.c_str());
+            }
+        }
+
         else
         {
             vTaskDelay(10);
@@ -257,22 +256,28 @@ void vTaskCLI(void *pvParameters)
             {
                 data->codeWork = 1;
                 data->isChange = true;
-
+                uint8_t newEffect = data->currentAnimation;
                 if (c.getArgument(0).getValue() == "color_to_color")
-                    data->currentAnimation = 0;
+                    newEffect = 0;
                 else if (c.getArgument(0).getValue() == "rainbow")
-                    data->currentAnimation = 1;
+                    newEffect = 1;
                 else if (c.getArgument(0).getValue() == "confetti")
-                    data->currentAnimation = 2;
+                    newEffect = 2;
                 else if (c.getArgument(0).getValue() == "rain")
-                    data->currentAnimation = 3;
+                    newEffect = 3;
                 else if (c.getArgument(0).getValue() == "room")
-                    data->currentAnimation = 4;
+                    newEffect = 4;
+
+                if (newEffect != data->currentAnimation)
+                {
+                    data->currentAnimation = newEffect;
+                    matrix->clear();
+                }
 
                 for (uint16_t i = 0; i < sizeof(data->buffer) / sizeof(*data->buffer); i++)
                     data->buffer[i] = -1;
-                for (uint8_t i = 0; i < c.countArgs(); ++i)
-                    data->buffer[i] = c.getArgument(i).getValue().toInt();
+                for (uint8_t i = 1; i < c.countArgs(); i++)
+                    data->buffer[i-1] = c.getArgument(i).getValue().toInt();
 
                 ESP_LOGI('CLI', "On effect");
             }
@@ -288,7 +293,7 @@ void vTaskCLI(void *pvParameters)
                 Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(wifiTask), uxTaskGetStackHighWaterMark(wifiTask));
                 Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(cliTask), uxTaskGetStackHighWaterMark(cliTask));
                 Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(animationTask), uxTaskGetStackHighWaterMark(animationTask));
-                Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(manualTask), uxTaskGetStackHighWaterMark(manualTask));
+                // Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(manualTask), uxTaskGetStackHighWaterMark(manualTask));
                 Serial.printf("Free Heap: %d bytes\n", ESP.getFreeHeap());
             }
             else if (c == cmdRestart)
@@ -298,7 +303,6 @@ void vTaskCLI(void *pvParameters)
                     ESP.restart();
             }
         }
-        data->message.clear();
         vTaskDelay(10);
     }
 }
@@ -308,20 +312,24 @@ void vTaskUART(void *pvParameters)
 #define UART_BUFFER_SIZE 512
     Serial.begin(115200);
     Serial.setTimeout(50);
-
+    std::string newCommand;
     uint8_t buff[UART_BUFFER_SIZE];
     while (true)
     {
         if (0 < Serial.available())
         {
+            newCommand.clear();
             while (0 < Serial.available())
             {
                 int size = Serial.available();
                 size = (size >= UART_BUFFER_SIZE ? UART_BUFFER_SIZE : size);
                 Serial.read(buff, size);
-                data->message.append((char *)buff, size);
+                newCommand.append((char *)buff, size);
             }
+            data->message = newCommand;
+            data->messageI2C = newCommand;
         }
+
         vTaskDelay(70);
     }
 }
@@ -335,41 +343,28 @@ void vTaskI2C(void *pvParameters)
     pinMode(SCL_PIN, INPUT_PULLUP);
     Wire.begin(SDA_PIN, SCL_PIN);
 
-    uint8_t devices[10];
-    uint8_t nDevices = 0;
-
-    byte error, address;
-    nDevices = 0;
-    ESP_LOGI('I2C', "Scan i2c bus...");
-    for (address = 1; address < 127; address++)
-    {
-        Wire.beginTransmission(address);
-        error = Wire.endTransmission();
-        if (error == 0)
-        {
-            ESP_LOGI('I2C', "I2C device found at address 0x%h", address);
-            devices[nDevices] = address;
-            nDevices++;
-        }
-        else if (error == 4)
-            ESP_LOGI('I2C', "Unknow error at address 0x%h", address);
-    }
-    if (nDevices == 0)
-        ESP_LOGE('I2C', "All I2C Devices are offline)");
+    uint8_t devices[3];
+    uint8_t nDevices = 3;
+    devices[0] = 0x07;
+    devices[1] = 0x18;
+    devices[2] = 0x98;
     while (true)
     {
+        // ESP_LOGI('i2c', "messageI2C: %s", data->messageI2C.c_str());
         for (uint8_t id = 0; id < nDevices; id++)
         {
             WirePacker packer;
-            packer.write(data->message.c_str());
+            packer.write(data->messageI2C.c_str());
             packer.end();
             Wire.beginTransmission(devices[id]);
             while (packer.available())
                 Wire.write(packer.read());
-            Wire.endTransmission();
-            vTaskDelay(10);
+            uint8_t state = Wire.endTransmission(true);
+            if (state != 0)
+                ESP_LOGE('i2c', "state: %d (%s)", state, Wire.getErrorText(state));
+            vTaskDelay(40);
         }
-        vTaskDelay(150);
+        vTaskDelay(100);
     }
 #else
     pinMode(SDA_PIN, INPUT_PULLUP);

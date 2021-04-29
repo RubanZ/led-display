@@ -46,7 +46,7 @@ void Rainbow::toString(Data* fdata)
     msg.append(itoa(brightness, buffer, 10));
     msg += " ";
     msg.append(itoa(hue, buffer, 10));
-    fdata->message = msg;
+    fdata->messageI2C = msg;
 }
 
 void Rainbow::sync(Data* fdata){

@@ -65,7 +65,7 @@ void RoomSimulation::toString(Data *fdata)
     msg.append(itoa(count, buffer, 10));
     msg += " ";
     msg.append(itoa(brightness, buffer, 10));
-    fdata->message = msg;
+    fdata->messageI2C = msg;
 }
 
 void RoomSimulation::sync(Data *fdata)
