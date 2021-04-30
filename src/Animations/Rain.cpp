@@ -156,6 +156,8 @@ void Rain::toString(Data *fdata)
     msg.append(itoa(delay, buffer, 10));
     msg += " ";
     msg.append(itoa(brightness, buffer, 10));
+    msg += " ";
+    msg.append(itoa(fdata->brightness, buffer, 10));
     fdata->messageI2C = msg;
 }
 
@@ -165,5 +167,6 @@ void Rain::sync(Data *fdata)
     len = fdata->buffer[1];
     delay = fdata->buffer[2];
     brightness = fdata->buffer[3];
+    fdata->brightness = fdata->buffer[4];
     return;
 }

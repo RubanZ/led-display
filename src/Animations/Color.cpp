@@ -44,6 +44,8 @@ void Color::toString(Data* fdata)
     msg.append(itoa(border, buffer, 10));
     msg += " ";
     msg.append(itoa(dir, buffer, 10));
+    msg += " ";
+    msg.append(itoa(fdata->brightness, buffer, 10));
     fdata->messageI2C = msg;
 }
 
@@ -53,4 +55,5 @@ void Color::sync(Data* fdata){
     brightness = fdata->buffer[2];
     border = fdata->buffer[3];
     dir = fdata->buffer[4];
+    fdata->brightness = fdata->buffer[5];
 }
