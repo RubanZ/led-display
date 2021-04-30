@@ -8,9 +8,9 @@ void Manual::render(Matrix *fmatrix)
     for (uint16_t i = 0; i < sizeof(buff) / sizeof(*buff); i++)
     {
         if (buff[i] == -1)
-            return;
+            continue;
         if (fmatrix->configuration.c_count_leds + fmatrix->count() >= buff[i] && buff[i] >= fmatrix->configuration.c_count_leds)
-            fmatrix->matrix[buff[i]] = CRGB::White;
+            fmatrix->matrix[buff[i]-fmatrix->configuration.c_count_leds] = CRGB::White; 
     }
 }
 
