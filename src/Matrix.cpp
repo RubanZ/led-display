@@ -31,7 +31,7 @@ void Matrix::handle()
 
 void Matrix::clear()
 {
-  memset8( matrix, 0, count() * sizeof(CRGB));
+  memset8( matrix, 0, (count() + 1) * sizeof(CRGB));
 }
 
 void Matrix::setBrightness(uint8_t val)
