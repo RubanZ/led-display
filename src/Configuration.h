@@ -6,7 +6,7 @@
 
 #include "DataStruct.h"
 
-#define ID_DEVICE 1
+#define ID_DEVICE 2
 #define NAME_DEVICE "Seminex"
 
 #define COLOR 0xFF007F            //Основной цвет
@@ -16,8 +16,7 @@
 #define MAX_POWER_MILLIAMPS 5000 // Ограничение по току
 #define BRIGHTNESS 50             //Начальная яркость
 #define PIN_DATA 19               // Выход ленты
-const char *ssid = "RED";
-const char *password = "realred34";
+
 #if ID_DEVICE == 1
 #define MASTER
 #define WIDTH 36 //Размеры отрисовки(ширина)
