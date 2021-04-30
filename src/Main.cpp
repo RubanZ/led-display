@@ -116,6 +116,7 @@ void vTaskAnimation(void *pvParameters)
             switch (data->currentAnimation)
             {
             case 0:
+            {
 #ifdef MASTER
                 color->toString(data);
 #else
@@ -123,7 +124,9 @@ void vTaskAnimation(void *pvParameters)
 #endif
                 color->render(matrix);
                 break;
+            }
             case 1:
+            {
 #ifdef MASTER
                 rainbow->toString(data);
 #else
@@ -131,7 +134,9 @@ void vTaskAnimation(void *pvParameters)
 #endif
                 rainbow->render(matrix);
                 break;
+            }
             case 2:
+            {
 #ifdef MASTER
                 confetti->toString(data);
 #else
@@ -139,7 +144,9 @@ void vTaskAnimation(void *pvParameters)
 #endif
                 confetti->render(matrix);
                 break;
+            }
             case 3:
+            {
 #ifdef MASTER
                 rain->toString(data);
 #else
@@ -147,7 +154,9 @@ void vTaskAnimation(void *pvParameters)
 #endif
                 rain->render(matrix);
                 break;
+            }
             case 4:
+            {
 #ifdef MASTER
                 room->toString(data);
 #else
@@ -155,26 +164,27 @@ void vTaskAnimation(void *pvParameters)
 #endif
                 room->render(matrix);
                 break;
+            }
             default:
+            {
                 data->currentAnimation = 0;
                 break;
             }
+            }
+#ifdef MASTER
+            EVERY_N_SECONDS(20)
+            {
+                matrix->clear();
+                data->brightness = 0;
+                data->currentAnimation++;
+                // currentAnimation++;
+            };
+#endif
             break;
         }
         }
 
         matrix->handle();
-#ifdef MASTER
-        EVERY_N_SECONDS(20)
-        {
-            matrix->clear();
-            data->brightness = 0;
-            data->currentAnimation++;
-            // currentAnimation++;
-        };
-#endif
-        // rain->render(matrix);
-        // matrix->handle();
         vTaskDelay(40);
     }
 }
@@ -376,11 +386,11 @@ void vTaskI2C(void *pvParameters)
             while (packer.available())
                 Wire.write(packer.read());
             uint8_t state = Wire.endTransmission(true);
-            if (state != 0)
+            Wire.flush();
+            if (state != 0 && state != 2)
                 ESP_LOGE('i2c', "state: %d (%s)", state, Wire.getErrorText(state));
-            vTaskDelay(40);
         }
-        vTaskDelay(100);
+        vTaskDelay(40);
     }
 #else
     pinMode(SDA_PIN, INPUT_PULLUP);
@@ -410,6 +420,8 @@ void vTaskI2C(void *pvParameters)
 
 void vTaskWIFI(void *pvParameters)
 {
+    const char *ssid = "iot";
+    const char *password = "realred34";
 #define TCP_BUFFER_SIZE 1024
     WiFiServer server;
     uint8_t buff[TCP_BUFFER_SIZE];
@@ -430,7 +442,7 @@ void vTaskWIFI(void *pvParameters)
         WiFiClient client = server.available();
         if (client)
         {
-            
+            vTaskSuspend(i2cTask);
             while (client.connected())
             {
                 int size = 0;
@@ -455,7 +467,7 @@ void vTaskWIFI(void *pvParameters)
                         if (atoi(elem) == 9999)
                         {
                             data->codeWork = 2;
-                            data->message.append("clear");
+                            matrix->clear();
                         }
                         else
                         {
@@ -464,9 +476,9 @@ void vTaskWIFI(void *pvParameters)
                         }
                     }
                 }
-                vTaskDelay(1);
+                vTaskDelay(10);
             }
-            
+            vTaskResume(i2cTask);
             data->codeWork = 1;
         }
         client.stop();
