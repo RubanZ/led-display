@@ -419,7 +419,7 @@ void vTaskI2C(void *pvParameters)
 
 void vTaskWIFI(void *pvParameters)
 {
-    const char *ssid = "iot";
+    const char *ssid = "RED";
     const char *password = "realred34";
 #define TCP_BUFFER_SIZE 1024
     WiFiServer server;
