@@ -460,21 +460,6 @@ void vTaskWIFI(void *pvParameters)
                     char *elem;
                     int index = 0;
 
-                    while ((elem = strtok_r(message, ",", &message)) != NULL)
-                    {
-                        Serial.println(elem);
-                        if (atoi(elem) == 9999)
-                        {
-                            data->codeWork = 2;
-                            matrix->clear();
-                        }
-                        else
-                        {
-                            data->buffer[index] = atoi(elem);
-                            ++index;
-                        }
-                    }
-
                     elem = strtok(message, ",");
                     while (elem != NULL)
                     {
