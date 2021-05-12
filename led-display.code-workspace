@@ -2,6 +2,14 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "matrixOS",
+			"path": "..\\matrixOS"
+		},
+		{
+			"name": "led-display-idf",
+			"path": "..\\led-display-idf"
 		}
 	],
 	"settings": {
