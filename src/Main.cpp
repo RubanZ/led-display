@@ -177,7 +177,6 @@ void vTaskAnimation(void *pvParameters)
                 matrix->clear();
                 data->brightness = 0;
                 data->currentAnimation++;
-                // currentAnimation++;
             };
 #endif
             break;
@@ -192,7 +191,7 @@ void vTaskAnimation(void *pvParameters)
 void vTaskCLI(void *pvParameters)
 {
     std::string lastCommand;
-    // std::string newCommand;
+
     // Create CLI Object
     SimpleCLI cli;
 
@@ -474,6 +473,36 @@ void vTaskWIFI(void *pvParameters)
                             data->buffer[index] = atoi(elem);
                             ++index;
                         }
+                    }
+
+                    elem = strtok(message, ",");
+                    while (elem != NULL)
+                    {
+                        Serial.println();
+                        if (atoi(elem) == 9999)
+                        {
+                            Serial.println("work 2");
+                            data->codeWork = 2;
+                            matrix->clear();
+                        }
+                        else if (atoi(elem) == 7777)
+                        {
+                            Serial.println("fill");
+                            int from = atoi(strtok(NULL, ","));
+                            int to = atoi(strtok(NULL, ","));
+                            for (int i = from; i < to; i++)
+                            {
+                                data->buffer[index] = i;
+                                ++index;
+                            }
+                        }
+                        else
+                        {
+                            Serial.print(elem);
+                            data->buffer[index] = atoi(elem);
+                            ++index;
+                        }
+                        elem = strtok(NULL, ",");
                     }
                 }
                 vTaskDelay(10);
