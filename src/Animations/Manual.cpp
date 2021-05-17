@@ -2,7 +2,6 @@
 
 void Manual::render(Matrix *fmatrix)
 {
-    // fmatrix->clear();
     fmatrix->fadeToOn(this->brightness);
 
     for (uint16_t i = 0; i < sizeof(buff) / sizeof(*buff); i++)

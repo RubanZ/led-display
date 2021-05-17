@@ -22,29 +22,8 @@ void RoomSimulation::confetti(Matrix *fmatrix)
                 fmatrix->drawPixelXY(x2, random8(fmatrix->getYtoX(x2)), 0);
             }
         }
-        // for(int8_t i = 0; i < delay2; i++){
-        //     for (int8_t x = 0; x < fmatrix->data->width; x++)
-        //     {
-        //         if (random8(2) == 1)
-        //             fmatrix->drawPixelXY(x, random8(fmatrix->getYtoX(x)), 0);
-        //     }
-        // }
-
         time = millis();
     }
-    // for (int8_t x = 0; x < fmatrix->data->width; x++)
-    // {
-    //     for (int8_t y = 0; y < fmatrix->getYtoX(x); y++)
-    //     {
-    //         uint32_t thisColor = fmatrix->getPixColorXY(x, y);
-    //         uint32_t colorWLow = fmatrix->crgbToHex(colorW / 3) ;
-
-    //         if (colorWLow > thisColor )
-    //             fmatrix->drawPixelXY(x, y, 0);
-    //         else
-    //             fmatrix->drawPixelXY(x, y , fmatrix->hexToCrgb(thisColor).fadeToBlackBy(random8(delay2)));
-    //     }
-    // }
 }
 
 CRGB RoomSimulation::randomColor(){

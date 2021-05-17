@@ -8,7 +8,7 @@ void Matrix::init(Data *fdata)
   data->brightness = BRIGHTNESS;
   configBlocks = configuration.blocksConfig;
   FastLED.addLeds<LED_TYPE, PIN_DATA, COLOR_ORDER>(matrix, WIDTH * HEIGHT)
-      .setCorrection(TypicalPixelString);
+      .setCorrection(COLOR_CORRECTION).setTemperature(COLOR_TEMP);
   FastLED.setBrightness(data->brightness);
 };
 

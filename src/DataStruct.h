@@ -11,7 +11,7 @@ struct Data
 
     boolean on = true; //Состояние вкл\выкл
     int8_t codeWork = 1; //Режим работы при запуске
-    uint8_t currentAnimation = 0; //Текущая анимация
+    uint8_t currentAnimation = 4; //Текущая анимация
     uint8_t brightness = 50; //Текущая яркость
     boolean isChange = false;
 

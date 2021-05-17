@@ -172,11 +172,11 @@ void vTaskAnimation(void *pvParameters)
             }
             }
 #ifdef MASTER
-            EVERY_N_SECONDS(20)
-            {
-                matrix->clear();
-                data->brightness = 0;
-                data->currentAnimation++;
+            EVERY_N_SECONDS(500){
+                // matrix->clear();
+                // data->brightness = 0;
+                // data->currentAnimation++;
+                // currentAnimation++;
             };
 #endif
             break;
@@ -191,7 +191,7 @@ void vTaskAnimation(void *pvParameters)
 void vTaskCLI(void *pvParameters)
 {
     std::string lastCommand;
-
+    // std::string newCommand;
     // Create CLI Object
     SimpleCLI cli;
 
@@ -235,7 +235,9 @@ void vTaskCLI(void *pvParameters)
     {
         if (data->message.length() > 0)
         {
-            if (lastCommand != data->message)
+            // lastCommand = data->message;
+            //     cli.parse(lastCommand.c_str());
+            if (data->codeWork != 2)
             {
                 lastCommand = data->message;
                 cli.parse(lastCommand.c_str());
@@ -318,7 +320,7 @@ void vTaskCLI(void *pvParameters)
                 Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(wifiTask), uxTaskGetStackHighWaterMark(wifiTask));
                 Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(cliTask), uxTaskGetStackHighWaterMark(cliTask));
                 Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(animationTask), uxTaskGetStackHighWaterMark(animationTask));
-                // Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(manualTask), uxTaskGetStackHighWaterMark(manualTask));
+          
                 Serial.printf("Free Heap: %d bytes\n", ESP.getFreeHeap());
             }
             else if (c == cmdRestart)
@@ -364,8 +366,6 @@ void vTaskI2C(void *pvParameters)
 #define SDA_PIN 21
 #define SCL_PIN 22
 #ifdef MASTER
-    pinMode(SDA_PIN, INPUT_PULLUP);
-    pinMode(SCL_PIN, INPUT_PULLUP);
     Wire.begin(SDA_PIN, SCL_PIN);
 
     uint8_t devices[3];
@@ -386,10 +386,11 @@ void vTaskI2C(void *pvParameters)
                 Wire.write(packer.read());
             uint8_t state = Wire.endTransmission(true);
             Wire.flush();
+            vTaskDelay(15);
             if (state != 0 && state != 2)
-                ESP_LOGE('i2c', "state: %d (%s)", state, Wire.getErrorText(state));
+                ESP_LOGE('i2c', "state: %d (%s), device: %d", state, Wire.getErrorText(state), id);
         }
-        vTaskDelay(40);
+        vTaskDelay(170);
     }
 #else
     pinMode(SDA_PIN, INPUT_PULLUP);
@@ -412,19 +413,26 @@ void vTaskI2C(void *pvParameters)
             }
             ESP_LOGI("i2c", "%s", data->message.c_str());
         }
-        vTaskDelay(10);
+        vTaskDelay(20);
     }
 #endif
 }
 
 void vTaskWIFI(void *pvParameters)
 {
-    const char *ssid = "RED";
-    const char *password = "realred34";
+    const char *ssid = "RedMaket";
+    const char *password = "12345678";
+    // IPAddress local_IP(192, 168, 8, 200 + ID_DEVICE);
+    // IPAddress gateway(192, 168, 8, 1);
+    // IPAddress subnet(255, 255, 255, 0);
 #define TCP_BUFFER_SIZE 1024
     WiFiServer server;
     uint8_t buff[TCP_BUFFER_SIZE];
 
+    // if (!WiFi.config(local_IP, gateway, subnet))
+    // {
+    //     ESP_LOGI('WIFI', "STA Failed to configure");
+    // }
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED)
     {
@@ -441,7 +449,10 @@ void vTaskWIFI(void *pvParameters)
         WiFiClient client = server.available();
         if (client)
         {
+#ifdef MASTER
             vTaskSuspend(i2cTask);
+#endif
+
             while (client.connected())
             {
                 int size = 0;
@@ -490,10 +501,14 @@ void vTaskWIFI(void *pvParameters)
                         elem = strtok(NULL, ",");
                     }
                 }
-                vTaskDelay(10);
+                vTaskDelay(30);
             }
-            vTaskResume(i2cTask);
+            matrix->clear();
             data->codeWork = 1;
+#ifdef MASTER
+            vTaskResume(i2cTask);
+#endif
+            
         }
         client.stop();
         vTaskDelay(30);

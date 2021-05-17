@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Arduino.h"
-#include "FastLED.h"
 #include "DataStruct.h"
 #include "Configuration.h"
 
