@@ -1,0 +1,35 @@
+{
+    "fast_led": {
+        "matrix_file": "/matrix1.json",
+        "temperature": "#FFC58F",
+        "correction": "#FFFFFF",
+        "pl": 5000,
+        "pin": 19
+    },
+    "interfaces": {
+        "wifi": {
+            "ssid": "Keenetic-7169_2",
+            "password": "ces2d9Hm"
+        },
+        "i2c":{
+            "address": 4
+        }
+    },
+    "standby_mode": {
+        "effects":["presence_effect"],
+        "time": 10
+    },
+    "effects": [
+        {
+            "name": "presence_effect",
+            "props": {
+                "colorW": "#FFFFFF",
+                "colorC": "#FFFFFF",
+                "brightness": 50,
+                "count": 8,
+                "delay1": 1000,
+                "delay2": 2
+            }
+        }
+    ]
+}

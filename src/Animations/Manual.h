@@ -1,7 +1,6 @@
 #pragma once
-#include "Arduino.h"
 #include "../Configuration.h"
-#include "../DataStruct.h"
+#include "../objects.h"
 #include "../Animation.h"
 
 class Manual : public Animation

@@ -17,7 +17,7 @@ void RoomSimulation::confetti(Matrix *fmatrix)
             uint8_t y = random8(fmatrix->data->height);
             CRGB color = randomColor();
             fmatrix->drawPixelXY(x, y, color);
-            if (random8(2) == 1){
+            if (random8(delay2) == 1){
                 uint8_t x2 = random8(fmatrix->data->width);
                 fmatrix->drawPixelXY(x2, random8(fmatrix->getYtoX(x2)), 0);
             }

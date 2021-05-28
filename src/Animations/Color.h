@@ -1,6 +1,6 @@
 #pragma once
-#include "Arduino.h"
-#include "../DataStruct.h"
+#include "../Configuration.h"
+#include "../objects.h"
 #include "../Animation.h"
 
 class Color : public Animation

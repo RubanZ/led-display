@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Arduino.h"
-#include "DataStruct.h"
+#include "Configuration.h"
+#include "objects.h"
 
 class Interface
 {

@@ -1,7 +1,7 @@
 #include "Confetti.h"
 
 void Confetti::render(Matrix *fmatrix)
-{
+{   
     fmatrix->fadeToOn(brightness);
     if (millis() - time >= delay1)
     {

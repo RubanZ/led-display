@@ -1,5 +1,6 @@
 #pragma once
-#include "../DataStruct.h"
+#include "../Configuration.h"
+#include "../objects.h"
 #include "../Animation.h"
 
 class Rainbow : public Animation

@@ -1,21 +1,38 @@
 #include "Matrix.h"
 
-void Matrix::init(Data *fdata)
+void Matrix::init(Data *fdata, JsonDocument &fmatrx_json, JsonDocument &fconfig_json)
 {
   data = fdata;
-  data->width = WIDTH;
-  data->height = HEIGHT;
-  data->brightness = BRIGHTNESS;
-  configBlocks = configuration.blocksConfig;
-  FastLED.addLeds<LED_TYPE, PIN_DATA, COLOR_ORDER>(matrix, WIDTH * HEIGHT)
-      .setCorrection(COLOR_CORRECTION).setTemperature(COLOR_TEMP);
+
+  JsonArray array = fmatrx_json["config"].as<JsonArray>();
+  int pixel = 0;
+  for (JsonVariant block : array)
+  {
+    JsonArray array = block.as<JsonArray>();
+    if (data->height < array[1].as<int>() + array[3].as<int>())
+      data->height = array[1].as<int>() + array[3].as<int>();
+    if (data->width < array[0].as<int>() + array[2].as<int>())
+      data->width = array[0].as<int>() + array[2].as<int>();
+
+    for (uint8_t x = array[2].as<int>(); x < array[0].as<int>() + array[2].as<int>(); x++)
+    {
+      for (uint8_t y = array[3].as<int>(); y < array[1].as<int>() + array[3].as<int>(); y++)
+      {
+        matrix_map[std::make_pair(array[2].as<int>() + x, y)].pixel = pixel;
+        pixel++;
+      }
+    }
+  }
+  // for (auto &t : matrix_map)
+  //   Serial.printf("[%d, %d] = %d\n", t.first.first, t.first.second, t.second.pixel);
+  count = pixel;
+  data->brightness = 50;
+
+  FastLED.addLeds<LED_TYPE, 19, COLOR_ORDER>(leds, count + 1);
+      // .setCorrection(strtol(fconfig_json["correction"].as<std::string>().erase(0, 1).c_str(), NULL, 16))
+      // .setTemperature(strtol(fconfig_json["temperature"].as<std::string>().erase(0, 1).c_str(), NULL, 16));
   FastLED.setBrightness(data->brightness);
 };
-
-uint16_t Matrix::count()
-{
-  return getPixelNumber(data->width-1, getYtoX(data->width-1)-1);
-}
 
 void Matrix::handle()
 {
@@ -24,14 +41,13 @@ void Matrix::handle()
   EVERY_N_SECONDS(1)
   {
     ESP_LOGI('Led driver', "fps: %d", frame);
-    // ESP_LOGI('Led driver', "count leds: %d", count());
     frame = 0;
   }
 };
 
 void Matrix::clear()
 {
-  memset8( matrix, 0, (count() + 1) * sizeof(CRGB));
+  memset8(this->leds, 0, (this->count + 1) * sizeof(CRGB));
 }
 
 void Matrix::setBrightness(uint8_t val)
@@ -58,78 +74,34 @@ void Matrix::fadeToOn(uint8_t val)
 
 void Matrix::fadeToBlack(uint8_t step)
 {
-  fadeToBlackBy(matrix, WIDTH * HEIGHT, step);
+  fadeToBlackBy(leds, count + 1, step);
 }
-
-int8_t Matrix::getBlockNumber(int8_t x, int8_t y)
-{
-  uint8_t id = 0;
-  for (Block block : configuration.blocksConfig)
-  {
-    if (x >= block.c_w && x < block.w + block.c_w)
-    {
-      if (y < block.h + block.c_h && y >= block.c_h)
-        return id;
-      else
-        break;
-    }
-    id += 1;
-  }
-  return -1;
-};
-
-int8_t Matrix::getBlockNumber(int8_t x)
-{
-  uint8_t id = 0;
-  for (Block block : configuration.blocksConfig)
-  {
-    if (x >= block.c_w && x < block.w + block.c_w)
-    {
-      return id;
-    }
-    id += 1;
-  }
-  return -1;
-};
-
-int Matrix::getPixelNumber(int8_t x, int8_t y)
-{
-  int16_t count = 0;
-  int8_t block = getBlockNumber(x, y);
-  if (block != -1)
-  {
-    for (int8_t i = 0; i < block; i++)
-      count += configuration.blocksConfig[i].w * configuration.blocksConfig[i].h;
-    return count + configuration.blocksConfig[block].h * (x - configuration.blocksConfig[block].c_w) + (y - configuration.blocksConfig[block].c_h);
-  }
-  else
-    return -1;
-};
 
 void Matrix::drawPixelXY(int8_t x, int8_t y, CRGB color)
 {
-  int pixel = getPixelNumber(x, y);
+  int pixel = matrix_map[std::make_pair(x, y)].pixel;
+  
   if (pixel != -1)
-    matrix[pixel] = color;
+    leds[pixel] = color;
 };
-
-uint32_t Matrix::getPixColor(int thisPixel)
-{
-  return (((uint32_t)matrix[thisPixel].r << 16) | ((long)matrix[thisPixel].g << 8) | (long)matrix[thisPixel].b);
-}
 
 uint32_t Matrix::getPixColorXY(int8_t x, int8_t y)
 {
-  return getPixColor(getPixelNumber(x, y));
+  int pixel = matrix_map[std::make_pair(x, y)].pixel;
+  if (pixel != -1)
+    return (((uint32_t)leds[pixel].r << 16) | ((long)leds[pixel].g << 8) | (long)leds[pixel].b);
+  return -1;
 }
 
 int8_t Matrix::getYtoX(int8_t x)
 {
-  int8_t block = getBlockNumber(x);
-  if (block != -1)
-    return configuration.blocksConfig[block].height + configuration.blocksConfig[block].cor_height;
-  else
-    return -1;
+  int8_t maxY = -1;
+  for (uint8_t y = 0; y < 100; y++)
+  {
+    if (matrix_map[std::make_pair(x, y)].pixel > maxY)
+      maxY = matrix_map[std::make_pair(x, y)].pixel;
+  }
+  return maxY;
 }
 
 uint32_t Matrix::crgbToHex(CRGB color)
@@ -196,35 +168,3 @@ CRGB Matrix::HSVtoRGB(CHSV color) //int H, double S, double V, int output[3]
   res.b = (Bs + m) * 255;
   return res;
 }
-
-void Matrix::manual(Data *fdata)
-{
-  fadeToOn(50);
-  if (matrix[1].getParity())
-    fill_solid(matrix, data->height * data->width, CRGB::White);
-  else
-    clear();
-}
-
-bool Matrix::isPermutation(int *buf1, int *buf2)
-{
-  for (int i = 0; i < 100; ++i)
-    if (buf1[i] != buf2[i])
-      return false;
-  return true;
-}
-
-void Matrix::test()
-{
-  for (int x = 0; x < 9; x++)
-  {
-    for (int y = 0; y < 9; y++)
-    {
-      drawPixelXY(x, y, CRGB(255, 0, 255));
-    }
-  }
-
-  // for(Block block : configuration.blocksConfig)
-  //     Serial.println(block.height);
-  return;
-};

@@ -1,15 +1,14 @@
 #include "Configuration.h"
 
-#include "DataStruct.h"
+#include "objects.h"
 
-#include "CLI.h"
-
+#include <SimpleCLI.h>
+#include "algorithm"
 #include "Matrix.h"
 
 #include "Animation.h"
 #include "Animations/Color.h"
 #include "Animations/Rainbow.h"
-#include "Animations/Fire.h"
 #include "Animations/Confetti.h"
 #include "Animations/Rain.h"
 #include "Animations/RoomSimulation.h"
@@ -23,13 +22,19 @@
 
 Data *data = new Data();
 Matrix *matrix = new Matrix();
-Interface *cli = new CLI();
+
+StaticJsonDocument<2048> config;
+StaticJsonDocument<2048> json_matrix;
 
 TaskHandle_t uartTask;
 TaskHandle_t i2cTask;
 TaskHandle_t wifiTask;
 TaskHandle_t cliTask;
 TaskHandle_t animationTask;
+
+std::map<std::string, Animation *> effects;
+
+void logoPrint();
 void vTaskUART(void *pvParameters);
 void vTaskI2C(void *pvParameters);
 void vTaskWIFI(void *pvParameters);
@@ -38,150 +43,50 @@ void vTaskAnimation(void *pvParameters);
 
 void setup()
 {
+    Serial.begin(115200);
+    Serial.setTimeout(50);
+    logoPrint();
+    Serial.flush();
+    Serial.printf("Initialization File System ... %d\n", initFileSystem());
+    listDir(SPIFFS, "/", 0);
+
+    Serial.printf("Initialization Config File ... %d\n", readConfig(SPIFFS, "/config.json", config));
+
+    Serial.printf("Initialization Config Matrix ... %d\n", readConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix));
+    
+    Serial.printf("Initialization UART ... %d\n", xTaskCreatePinnedToCore(
+                                                      vTaskUART, "UART", 2248, NULL, 2, &uartTask, 0));
+    Serial.printf("Initialization CLI ... %d\n", xTaskCreatePinnedToCore(
+                                                     vTaskCLI, "CLI", 3196, NULL, 2, &cliTask, 1));
+    Serial.printf("Initialization matrix ... %d\n", xTaskCreatePinnedToCore(
+                                                        vTaskAnimation, "Matrix", 3192, NULL, 1, &animationTask, 1));
+    Serial.printf("Initialization Wi-Fi ... %d\n", xTaskCreatePinnedToCore(
+                                                       vTaskWIFI, "WiFi", 4196, NULL, 2, &wifiTask, 0));
+
     for (uint16_t i = 0; i < sizeof(data->buffer) / sizeof(*data->buffer); i++)
         data->buffer[i] = -1;
-    xTaskCreatePinnedToCore(
-        vTaskUART, "UART", 2248, NULL, 2, &uartTask, 0);
-    xTaskCreatePinnedToCore(
-        vTaskI2C, "I2C", 2698, NULL, 3, &i2cTask, 1);
-    xTaskCreatePinnedToCore(
-        vTaskWIFI, "WiFi", 4196, NULL, 2, &wifiTask, 0);
-    xTaskCreatePinnedToCore(
-        vTaskCLI, "CLI", 3196, NULL, 2, &cliTask, 1);
-    xTaskCreatePinnedToCore(
-        vTaskAnimation, "Animation", 3192, NULL, 1, &animationTask, 1);
-
-    // vTaskSuspend(animationTask);
-    // initFileSystem();
-    // listDir(SPIFFS, "/", 0);
 }
 
 void loop()
 {
-
-    switch (data->codeWork)
-    {
-    case 0:
-    {
-        matrix->clear();
-        vTaskSuspend(animationTask);
-        data->messageI2C = "mode 0";
-        break;
-    }
-    default:
-    {
-        vTaskResume(animationTask);
-        break;
-    }
-    }
-}
-
-void vTaskManual(void *pvParameters)
-{
-    matrix->init(data);
-    Animation *manual = new Manual();
-    while (true)
-    {
-        manual->sync(data);
-        manual->render(matrix);
-        matrix->handle();
-
-        vTaskDelay(50 / portTICK_PERIOD_MS);
-    }
+    FastLED.show();
 }
 
 void vTaskAnimation(void *pvParameters)
 {
-    matrix->init(data);
-    Animation *color = new Color();
-    Animation *rainbow = new Rainbow();
-    Animation *confetti = new Confetti();
-    Animation *rain = new Rain();
-    Animation *room = new RoomSimulation();
+    matrix->init(data, json_matrix, config);
 
-    Animation *manual = new Manual();
+    effects["color"] = new Color();
+    effects["rainbow"] = new Rainbow();
+    effects["confetti"] = new Confetti();
+    effects["rain"] = new Rain();
+    effects["presence_effect"] = new RoomSimulation();
+
+    effects["manual"] = new Manual();
 
     while (true)
     {
-        switch (data->codeWork)
-        {
-        case 2:
-        {
-            manual->sync(data);
-            manual->render(matrix);
-            break;
-        }
-        default:
-        {
-            switch (data->currentAnimation)
-            {
-            case 0:
-            {
-#ifdef MASTER
-                color->toString(data);
-#else
-                color->sync(data);
-#endif
-                color->render(matrix);
-                break;
-            }
-            case 1:
-            {
-#ifdef MASTER
-                rainbow->toString(data);
-#else
-                rainbow->sync(data);
-#endif
-                rainbow->render(matrix);
-                break;
-            }
-            case 2:
-            {
-#ifdef MASTER
-                confetti->toString(data);
-#else
-                confetti->sync(data);
-#endif
-                confetti->render(matrix);
-                break;
-            }
-            case 3:
-            {
-#ifdef MASTER
-                rain->toString(data);
-#else
-                rain->sync(data);
-#endif
-                rain->render(matrix);
-                break;
-            }
-            case 4:
-            {
-#ifdef MASTER
-                room->toString(data);
-#else
-                room->sync(data);
-#endif
-                room->render(matrix);
-                break;
-            }
-            default:
-            {
-                data->currentAnimation = 0;
-                break;
-            }
-            }
-#ifdef MASTER
-            EVERY_N_SECONDS(500){
-                // matrix->clear();
-                // data->brightness = 0;
-                // data->currentAnimation++;
-                // currentAnimation++;
-            };
-#endif
-            break;
-        }
-        }
+        effects["confetti"]->render(matrix);
 
         matrix->handle();
         vTaskDelay(40);
@@ -235,13 +140,9 @@ void vTaskCLI(void *pvParameters)
     {
         if (data->message.length() > 0)
         {
-            // lastCommand = data->message;
-            //     cli.parse(lastCommand.c_str());
-            if (data->codeWork != 2)
-            {
-                lastCommand = data->message;
-                cli.parse(lastCommand.c_str());
-            }
+            lastCommand = data->message;
+            data->message = "";
+            cli.parse(lastCommand.c_str());
         }
 
         else
@@ -256,72 +157,13 @@ void vTaskCLI(void *pvParameters)
             std::string args;
 
             Serial.print("> ");
-            Serial.println(data->message.c_str());
+            Serial.println(c.toString());
 
             if (c == cmdMode)
             {
                 matrix->clear();
                 data->codeWork = c.getArg(0).getValue().toInt();
                 ESP_LOGI('CLI', "Set codeWork: %d", data->codeWork);
-            }
-            else if (c == cmdFillArray)
-            {
-                for (uint16_t i = 0; i < sizeof(data->buffer) / sizeof(*data->buffer); i++)
-                    data->buffer[i] = -1;
-                data->buffer[0] = 3;
-                for (int i = 0; i < c.countArgs(); ++i)
-                    data->buffer[i] = c.getArgument(i).getValue().toInt();
-            }
-            else if (c == cmdClear)
-            {
-                data->isChange = true;
-                matrix->clear();
-                for (uint16_t i = 0; i < sizeof(data->buffer) / sizeof(*data->buffer); i++)
-                    data->buffer[i] = -1;
-            }
-            else if (c == cmdEffect)
-            {
-                data->codeWork = 1;
-                data->isChange = true;
-                uint8_t newEffect = data->currentAnimation;
-                if (c.getArgument(0).getValue() == "color_to_color")
-                    newEffect = 0;
-                else if (c.getArgument(0).getValue() == "rainbow")
-                    newEffect = 1;
-                else if (c.getArgument(0).getValue() == "confetti")
-                    newEffect = 2;
-                else if (c.getArgument(0).getValue() == "rain")
-                    newEffect = 3;
-                else if (c.getArgument(0).getValue() == "room")
-                    newEffect = 4;
-
-                if (newEffect != data->currentAnimation)
-                {
-                    data->currentAnimation = newEffect;
-                    matrix->clear();
-                }
-
-                for (uint16_t i = 0; i < sizeof(data->buffer) / sizeof(*data->buffer); i++)
-                    data->buffer[i] = -1;
-                for (uint8_t i = 1; i < c.countArgs(); i++)
-                    data->buffer[i - 1] = c.getArgument(i).getValue().toInt();
-
-                ESP_LOGI('CLI', "On effect");
-            }
-            else if (c == cmdHelp)
-            {
-                Serial.println("Help:");
-                Serial.println(cli.toString());
-            }
-            else if (c == cmdInfo)
-            {
-                Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(uartTask), uxTaskGetStackHighWaterMark(uartTask));
-                Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(i2cTask), uxTaskGetStackHighWaterMark(i2cTask));
-                Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(wifiTask), uxTaskGetStackHighWaterMark(wifiTask));
-                Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(cliTask), uxTaskGetStackHighWaterMark(cliTask));
-                Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(animationTask), uxTaskGetStackHighWaterMark(animationTask));
-          
-                Serial.printf("Free Heap: %d bytes\n", ESP.getFreeHeap());
             }
             else if (c == cmdRestart)
             {
@@ -337,8 +179,6 @@ void vTaskCLI(void *pvParameters)
 void vTaskUART(void *pvParameters)
 {
 #define UART_BUFFER_SIZE 512
-    Serial.begin(115200);
-    Serial.setTimeout(50);
     std::string newCommand;
     uint8_t buff[UART_BUFFER_SIZE];
     while (true)
@@ -356,7 +196,7 @@ void vTaskUART(void *pvParameters)
             data->message = newCommand;
             data->messageI2C = newCommand;
         }
-
+        Serial.flush();
         vTaskDelay(70);
     }
 }
@@ -365,7 +205,6 @@ void vTaskI2C(void *pvParameters)
 {
 #define SDA_PIN 21
 #define SCL_PIN 22
-#ifdef MASTER
     Wire.begin(SDA_PIN, SCL_PIN);
 
     uint8_t devices[3];
@@ -375,7 +214,6 @@ void vTaskI2C(void *pvParameters)
     devices[2] = 0x98;
     while (true)
     {
-        // ESP_LOGI('i2c', "messageI2C: %s", data->messageI2C.c_str());
         for (uint8_t id = 0; id < nDevices; id++)
         {
             WirePacker packer;
@@ -392,48 +230,17 @@ void vTaskI2C(void *pvParameters)
         }
         vTaskDelay(170);
     }
-#else
-    pinMode(SDA_PIN, INPUT_PULLUP);
-    pinMode(SCL_PIN, INPUT_PULLUP);
-    bool success = WireSlave.begin(SDA_PIN, SCL_PIN, I2C_ADDR);
-    if (!success)
-        while (1)
-            ESP.restart();
-    while (true)
-    {
-        WireSlave.update();
-
-        if (0 < WireSlave.available())
-        {
-            data->message.clear();
-            while (0 < WireSlave.available())
-            {
-                char c = WireSlave.read();
-                data->message.append(1, c);
-            }
-            ESP_LOGI("i2c", "%s", data->message.c_str());
-        }
-        vTaskDelay(20);
-    }
-#endif
 }
 
 void vTaskWIFI(void *pvParameters)
 {
-    const char *ssid = "RedMaket";
-    const char *password = "12345678";
-    // IPAddress local_IP(192, 168, 8, 200 + ID_DEVICE);
-    // IPAddress gateway(192, 168, 8, 1);
-    // IPAddress subnet(255, 255, 255, 0);
+    Serial.printf("\nssid: %s\npass: %s\n",  config["interfaces"]["wifi"]["ssid"].as<std::string>().c_str(), config["interfaces"]["wifi"]["password"].as<std::string>().c_str());
+
 #define TCP_BUFFER_SIZE 1024
     WiFiServer server;
     uint8_t buff[TCP_BUFFER_SIZE];
 
-    // if (!WiFi.config(local_IP, gateway, subnet))
-    // {
-    //     ESP_LOGI('WIFI', "STA Failed to configure");
-    // }
-    WiFi.begin(ssid, password);
+    WiFi.begin(config["interfaces"]["wifi"]["ssid"].as<std::string>().c_str(), config["interfaces"]["wifi"]["password"].as<std::string>().c_str());
     while (WiFi.status() != WL_CONNECTED)
     {
         ESP_LOGI('WIFI', "connecting to WiFi network");
@@ -449,9 +256,7 @@ void vTaskWIFI(void *pvParameters)
         WiFiClient client = server.available();
         if (client)
         {
-#ifdef MASTER
             vTaskSuspend(i2cTask);
-#endif
 
             while (client.connected())
             {
@@ -505,12 +310,26 @@ void vTaskWIFI(void *pvParameters)
             }
             matrix->clear();
             data->codeWork = 1;
-#ifdef MASTER
             vTaskResume(i2cTask);
-#endif
-            
         }
         client.stop();
         vTaskDelay(30);
     }
+}
+
+void logoPrint()
+{
+    Serial.write("\r\n\r\n");
+    Serial.write("                                          ___           ___                         ___           ___           ___     \r\n");
+    Serial.write("      _____          ___                 /  /\\         /__/\\         _____         /  /\\         /__/\\         /  /\\    \r\n");
+    Serial.write("     /  /::\\        /__/|               /  /::\\        \\  \\:\\       /  /::\\       /  /::\\        \\  \\:\\       /  /::|   \r\n");
+    Serial.write("    /  /:/\\:\\      |  |:|              /  /:/\\:\\        \\  \\:\\     /  /:/\\:\\     /  /:/\\:\\        \\  \\:\\     /  /:/:|   \r\n");
+    Serial.write("   /  /:/~/::\\     |  |:|             /  /:/~/:/    ___  \\  \\:\\   /  /:/~/::\\   /  /:/~/::\\   _____\\__\\:\\   /  /:/|:|__ \r\n");
+    Serial.write("  /__/:/ /:/\\:|  __|__|:|            /__/:/ /:/___ /__/\\  \\__\\:\\ /__/:/ /:/\\:| /__/:/ /:/\\:\\ /__/::::::::\\ /__/:/ |:| /\\\r\n");
+    Serial.write("  \\  \\:\\/:/~/:/ /__/::::\\            \\  \\:\\/:::::/ \\  \\:\\ /  /:/ \\  \\:\\/:/~/:/ \\  \\:\\/:/__\\/ \\  \\:\\~~\\~~\\/ \\__\\/  |:|/:/\r\n");
+    Serial.write("   \\  \\::/ /:/     ~\\~~\\:\\            \\  \\::/~~~~   \\  \\:\\  /:/   \\  \\::/ /:/   \\  \\::/       \\  \\:\\  ~~~      |  |:/:/ \r\n");
+    Serial.write("    \\  \\:\\/:/        \\  \\:\\            \\  \\:\\        \\  \\:\\/:/     \\  \\:\\/:/     \\  \\:\\        \\  \\:\\          |  |::/  \r\n");
+    Serial.write("     \\  \\::/          \\__\\/             \\  \\:\\        \\  \\::/       \\  \\::/       \\  \\:\\        \\  \\:\\         |  |:/   \r\n");
+    Serial.write("      \\__\\/                              \\__\\/         \\__\\/         \\__\\/         \\__\\/         \\__\\/         |__|/    \r\n");
+    Serial.write("\r\n\r\n");
 }
