@@ -1,63 +1,57 @@
 #include "Rainbow.h"
 
+void Rainbow::fromJSON(JsonDocument &document)
+{
+    if (document["effects"].containsKey("rainbow"))
+    {
+        this->brightness = document["effects"]["rainbow"]["brightness"].as<int>();
+        this->periodicity = document["effects"]["rainbow"]["periodicity"].as<int>();
+        this->direction = document["effects"]["rainbow"]["direction"].as<int>();
+        this->angel = document["effects"]["rainbow"]["angel"].as<int>();
+        // this->last_hue = document["effects"]["rainbow"]["last_hue"].as<int>();
+        this->offset = document["effects"]["rainbow"]["offset"].as<int>();
+    }
+    else
+        ESP_LOGW("Animation", "No values specified!");
+}
+
+void Rainbow::toJSON(JsonDocument &document)
+{
+    document["effects"]["rainbow"]["brightness"] = this->brightness;
+    document["effects"]["rainbow"]["periodicity"] = this->periodicity;
+    document["effects"]["rainbow"]["direction"] = this->direction;
+    document["effects"]["rainbow"]["angel"] = this->angel;
+    // document["effects"]["rainbow"]["last_hue"] = this->last_hue;
+    document["effects"]["rainbow"]["offset"] = this->offset;
+}
+
 void Rainbow::render(Matrix *fmatrix)
 {
-    // fmatrix->fadeToOn(brightness);
-    // if (millis() - time >= delay)
-    // {
-    //     for (int16_t x = 0; x < fmatrix->data->width; x++)
-    //     {
-    //         if (angel == 0)
-    //         {
-    //             CHSV thisColor = CHSV((byte)(hue + (x + fmatrix->configuration.c_w) * float(255 / fmatrix->configuration.max_w)), 255, 255);
-    //             for (int16_t y = 0; y < fmatrix->data->height + 1; y++)
-    //                 fmatrix->drawPixelXY(x, y, thisColor);
-    //         }
-    //         else
-    //         {
-    //             for (int16_t y = 0; y < fmatrix->data->height + 1; y++)
-    //             {
-    //                 CHSV thisColor = CHSV((byte)(hue + ((float)((float)(90 / angel) * x + y) + fmatrix->configuration.c_w) * (float)(255 / 90)), 255, 255);
-    //                 fmatrix->drawPixelXY(x, y, thisColor);
-    //             }
-    //         }
-    //     }
-    //     if (dir)
-    //         hue += delta;
-    //     else
-    //         hue -= delta;
-    //     time = millis();
-    // }
-    return;
-}
-
-void Rainbow::toString(Data* fdata)
-{
-    char buffer[10];
-    std::string msg = "effect rainbow ";
-    msg.append(itoa(delay, buffer, 10));
-    msg += " ";
-    msg.append(itoa(delta, buffer, 10));
-    msg += " ";
-    msg.append(itoa(dir, buffer, 10));
-    msg += " ";
-    msg.append(itoa(angel, buffer, 10));
-    msg += " ";
-    msg.append(itoa(brightness, buffer, 10));
-    msg += " ";
-    msg.append(itoa(hue, buffer, 10));
-    msg += " ";
-    msg.append(itoa(fdata->brightness, buffer, 10));
-    fdata->messageI2C = msg;
-}
-
-void Rainbow::sync(Data* fdata){
-    delay = fdata->buffer[0];
-    delta = fdata->buffer[1];
-    dir = fdata->buffer[2];
-    angel = fdata->buffer[3];
-    brightness = fdata->buffer[4];
-    hue = fdata->buffer[5];
-    fdata->brightness = fdata->buffer[6];
-    return;
+    //effect -name rainbow -load -data "{\"brightness\":50,\"periodicity\":30,\"direction\":1,\"angel\":0,\"offset\":1,\"last_hue\":0}"
+    fmatrix->fadeToOn(brightness);
+    if (millis() - time_last_update >= periodicity)
+    {
+        for (int16_t x = 0; x < fmatrix->data->width; x++)
+        {
+            if (angel == 0)
+            {
+                CHSV thisColor = CHSV((byte)(last_hue + (x + fmatrix->data->offset_width) * float(255 / fmatrix->data->max_width)), 255, 255);
+                for (int16_t y = 0; y < fmatrix->data->height + 1; y++)
+                    fmatrix->drawPixelXY(x, y, thisColor);
+            }
+            else
+            {
+                for (int16_t y = 0; y < fmatrix->data->height + 1; y++)
+                {
+                    CHSV thisColor = CHSV((byte)(last_hue + ((float)((float)(90 / angel) * x + y) + fmatrix->data->offset_width) * (float)(255 / 90)), 255, 255);
+                    fmatrix->drawPixelXY(x, y, thisColor);
+                }
+            }
+        }
+        if (direction)
+            last_hue += offset;
+        else
+            last_hue -= offset;
+        time_last_update = millis();
+    };
 }

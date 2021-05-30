@@ -16,7 +16,9 @@
         [2, 29, 32, 0],
         [2, 27, 34, 0]
     ],
-    "c_w": 0,
-    "max_w": 142,
-    "c_count_leds": 0
+    "max_width": 142,
+    "max_height": 100,
+    "offset_width": 0,
+    "offset_height": 0,
+    "offset_leds": 0
 }

@@ -7,12 +7,12 @@
 #include "Matrix.h"
 
 #include "Animation.h"
-#include "Animations/Color.h"
+// #include "Animations/Color.h"
 #include "Animations/Rainbow.h"
-#include "Animations/Confetti.h"
-#include "Animations/Rain.h"
-#include "Animations/RoomSimulation.h"
-#include "Animations/Manual.h"
+// #include "Animations/Confetti.h"
+// #include "Animations/Rain.h"
+#include "Animations/Presence.h"
+// #include "Animations/Manual.h"
 
 #include <WiFi.h>
 
@@ -23,8 +23,8 @@
 Data *data = new Data();
 Matrix *matrix = new Matrix();
 
-StaticJsonDocument<2048> config;
-StaticJsonDocument<2048> json_matrix;
+DynamicJsonDocument config(2048);
+DynamicJsonDocument json_matrix(2048);
 
 TaskHandle_t uartTask;
 TaskHandle_t i2cTask;
@@ -44,22 +44,21 @@ void vTaskAnimation(void *pvParameters);
 void setup()
 {
     Serial.begin(115200);
-    Serial.setTimeout(50);
+    Serial.setTimeout(100);
     logoPrint();
     Serial.flush();
     Serial.printf("Initialization File System ... %d\n", initFileSystem());
-    listDir(SPIFFS, "/", 0);
 
     Serial.printf("Initialization Config File ... %d\n", readConfig(SPIFFS, "/config.json", config));
 
     Serial.printf("Initialization Config Matrix ... %d\n", readConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix));
-    
+
     Serial.printf("Initialization UART ... %d\n", xTaskCreatePinnedToCore(
                                                       vTaskUART, "UART", 2248, NULL, 2, &uartTask, 0));
     Serial.printf("Initialization CLI ... %d\n", xTaskCreatePinnedToCore(
                                                      vTaskCLI, "CLI", 3196, NULL, 2, &cliTask, 1));
     Serial.printf("Initialization matrix ... %d\n", xTaskCreatePinnedToCore(
-                                                        vTaskAnimation, "Matrix", 3192, NULL, 1, &animationTask, 1));
+                                                        vTaskAnimation, "Matrix", 4096, NULL, 1, &animationTask, 1));
     Serial.printf("Initialization Wi-Fi ... %d\n", xTaskCreatePinnedToCore(
                                                        vTaskWIFI, "WiFi", 4196, NULL, 2, &wifiTask, 0));
 
@@ -69,27 +68,37 @@ void setup()
 
 void loop()
 {
-    FastLED.show();
 }
 
 void vTaskAnimation(void *pvParameters)
 {
     matrix->init(data, json_matrix, config);
-
-    effects["color"] = new Color();
+    matrix->clear();
+    // effects["color"] = new Color();
     effects["rainbow"] = new Rainbow();
-    effects["confetti"] = new Confetti();
-    effects["rain"] = new Rain();
-    effects["presence_effect"] = new RoomSimulation();
-
-    effects["manual"] = new Manual();
+    effects["rainbow"]->fromJSON(config);
+    // effects["confetti"] = new Confetti();
+    // effects["rain"] = new Rain();
+    effects["presence_effect"] = new Presence();
+    effects["presence_effect"]->fromJSON(config);
+    // effects["manual"] = new Manual();
 
     while (true)
     {
-        effects["confetti"]->render(matrix);
+        try
+        {
+            effects[data->currentAnimation]->render(matrix);
+            effects[data->currentAnimation]->fromJSON(config);
+            // effects[data->currentAnimation]->toJSON(config);
+            // serializeJson(config["effects"], Serial);
+        }
+        catch (std::exception e)
+        {
+            Serial.printf("catch: %s\nAnimation: %s", e.what(), data->currentAnimation.c_str());
+        }
 
         matrix->handle();
-        vTaskDelay(40);
+        vTaskDelay(10); //40
     }
 }
 
@@ -101,7 +110,9 @@ void vTaskCLI(void *pvParameters)
     SimpleCLI cli;
 
     // Commands
+
     Command cmdMode;
+
     Command cmdFillArray;
     Command cmdClear;
 
@@ -109,6 +120,8 @@ void vTaskCLI(void *pvParameters)
     Command cmdEffect;
 
     //System commands
+    Command cmdConfig;
+    Command cmdListDir;
     Command cmdRestart;
     Command cmdInfo;
     Command cmdHelp;
@@ -124,10 +137,18 @@ void vTaskCLI(void *pvParameters)
     cmdClear.setDescription(" Clear pixels");
 
     //Effects
-    cmdEffect = cli.addBoundlessCommand("effect");
-    cmdEffect.setDescription(" On and settings effect");
+    cmdEffect = cli.addCommand("effect");
+    cmdEffect.addPositionalArgument("name", "color");
+    cmdEffect.addFlagArgument("load");
+    cmdEffect.addPositionalArgument("data", "{}");
 
     //System commands
+    cmdConfig = cli.addSingleArgumentCommand("config");
+    cmdConfig.setDescription(" load/save config file");
+
+    cmdListDir = cli.addCommand("dir");
+    cmdListDir.setDescription(" display the contents of the root folder ");
+
     cmdHelp = cli.addCommand("help");
     cmdHelp.setDescription(" Get help!");
 
@@ -136,6 +157,7 @@ void vTaskCLI(void *pvParameters)
 
     cmdRestart = cli.addCommand("restart");
     cmdRestart.setDescription(" Restart this controller");
+
     while (true)
     {
         if (data->message.length() > 0)
@@ -144,7 +166,6 @@ void vTaskCLI(void *pvParameters)
             data->message = "";
             cli.parse(lastCommand.c_str());
         }
-
         else
         {
             vTaskDelay(10);
@@ -156,20 +177,107 @@ void vTaskCLI(void *pvParameters)
             Command c = cli.getCmd();
             std::string args;
 
-            Serial.print("> ");
-            Serial.println(c.toString());
+            try
+            {
+                if (c == cmdMode)
+                {
+                    matrix->clear();
+                    data->codeWork = c.getArg(0).getValue().toInt();
+                    ESP_LOGI('CLI', "Set codeWork: %d", data->codeWork);
+                }
+                else if (c == cmdRestart)
+                {
+                    ESP_LOGI('CLI', "Restarting...");
+                    while (1)
+                        ESP.restart();
+                }
+                else if (c == cmdInfo)
+                {
+                    logoPrint();
+                    Serial.printf("Name device: %s\nCode version: %s\r\n", NAME_DEVICE, VERSION);
+                    Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(uartTask), uxTaskGetStackHighWaterMark(uartTask));
+                    Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(i2cTask), uxTaskGetStackHighWaterMark(i2cTask));
+                    Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(wifiTask), uxTaskGetStackHighWaterMark(wifiTask));
+                    Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(cliTask), uxTaskGetStackHighWaterMark(cliTask));
+                    Serial.printf("Task (%s): free %d bytes\r\n", pcTaskGetTaskName(animationTask), uxTaskGetStackHighWaterMark(animationTask));
 
-            if (c == cmdMode)
-            {
-                matrix->clear();
-                data->codeWork = c.getArg(0).getValue().toInt();
-                ESP_LOGI('CLI', "Set codeWork: %d", data->codeWork);
+                    Serial.printf("Free Heap: %d bytes\r\n", ESP.getFreeHeap());
+
+                    serializeJsonPretty(config, Serial);
+                }
+                else if (c == cmdHelp)
+                {
+                    Serial.println("Help:");
+                    Serial.println(cli.toString());
+                }
+                else if (c == cmdListDir)
+                {
+                    listDir(SPIFFS, "/", 0);
+                }
+                else if (c == cmdConfig)
+                {
+                    if (c.getArg(0).getValue() == "load")
+                    {
+                        readConfig(SPIFFS, "/config.json", config);
+                        serializeJsonPretty(config, Serial);
+                        Serial.println();
+                        readConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix);
+                        serializeJsonPretty(json_matrix, Serial);
+                        Serial.println();
+                    }
+                    else if (c.getArg(0).getValue() == "save")
+                    {
+                        config["version"] = VERSION;
+                        saveConfig(SPIFFS, "/config.json", config);
+                        saveConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix);
+                    }
+                }
+                else if (c == cmdEffect)
+                {
+                    //effect -name presence_effect -load -data "{\"warm_light\":\"#ff0000\",\"cool_light\":\"#dcc8dc\",\"brightness\":50,\"periodicity\":1000,\"chance_off\":2,\"count_elem\":8}"
+                    if (c.getArgument("load").isSet())
+                    {
+                        DynamicJsonDocument props(512);
+                        DeserializationError err = deserializeJson(props, c.getArgument("data").getValue().c_str());
+
+                        if (err)
+                        {
+                            Serial.print(F("deserializeJson() failed with code "));
+                            Serial.println(err.c_str());
+                        }
+                        props.shrinkToFit();
+                        if (config["effects"].containsKey(c.getArgument("name").getValue()))
+                        {
+                            config["effects"][c.getArgument("name").getValue()].clear();
+                            config["effects"][c.getArgument("name").getValue()] = props;
+                        }
+                        else
+                        {
+                            config["effects"].createNestedObject(c.getArgument("name").getValue());
+                            config["effects"][c.getArgument("name").getValue()] = props;
+                        }
+                    }
+                    else
+                        data->currentAnimation = c.getArgument("name").getValue().c_str();
+                }
             }
-            else if (c == cmdRestart)
+            catch (std::exception e)
             {
-                ESP_LOGI('CLI', "Restarting...");
-                while (1)
-                    ESP.restart();
+                Serial.printf("catch: %s\n>: %s", e.what(), lastCommand.c_str());
+            }
+        }
+        if (cli.errored())
+        {
+            CommandError cmdError = cli.getError();
+
+            Serial.print("ERROR CMD: ");
+            Serial.println(cmdError.toString());
+
+            if (cmdError.hasCommand())
+            {
+                Serial.print("Did you mean \"");
+                Serial.print(cmdError.getCommand().toString());
+                Serial.println("\"?");
             }
         }
         vTaskDelay(10);
@@ -234,7 +342,7 @@ void vTaskI2C(void *pvParameters)
 
 void vTaskWIFI(void *pvParameters)
 {
-    Serial.printf("\nssid: %s\npass: %s\n",  config["interfaces"]["wifi"]["ssid"].as<std::string>().c_str(), config["interfaces"]["wifi"]["password"].as<std::string>().c_str());
+    Serial.printf("\nssid: %s\npass: %s\n", config["interfaces"]["wifi"]["ssid"].as<std::string>().c_str(), config["interfaces"]["wifi"]["password"].as<std::string>().c_str());
 
 #define TCP_BUFFER_SIZE 1024
     WiFiServer server;

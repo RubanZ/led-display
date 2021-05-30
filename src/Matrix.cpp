@@ -28,20 +28,26 @@ void Matrix::init(Data *fdata, JsonDocument &fmatrx_json, JsonDocument &fconfig_
   count = pixel;
   data->brightness = 50;
 
+  data->max_height = fmatrx_json["max_height"].as<int>();
+  data->max_width = fmatrx_json["max_width"].as<int>();
+
+  data->offset_width = fmatrx_json["offset_width"].as<int>();
+  data->offset_height = fmatrx_json["offset_height"].as<int>();
+  data->offset_leds = fmatrx_json["offset_leds"].as<int>();
+
   FastLED.addLeds<LED_TYPE, 19, COLOR_ORDER>(leds, count + 1);
-      // .setCorrection(strtol(fconfig_json["correction"].as<std::string>().erase(0, 1).c_str(), NULL, 16))
-      // .setTemperature(strtol(fconfig_json["temperature"].as<std::string>().erase(0, 1).c_str(), NULL, 16));
+  FastLED.setCorrection(strtol(fconfig_json["fast_led"]["correction"].as<std::string>().erase(0, 1).c_str(), NULL, 16));
+  FastLED.setTemperature(strtol(fconfig_json["fast_led"]["temperature"].as<std::string>().erase(0, 1).c_str(), NULL, 16));
   FastLED.setBrightness(data->brightness);
+  FastLED.setMaxPowerInVoltsAndMilliamps(strtol(fconfig_json["fast_led"]["power_limit"]["volts"].as<std::string>().c_str(), NULL, 10), strtol(fconfig_json["fast_led"]["power_limit"]["milliamps"].as<std::string>().c_str(), NULL, 10));
 };
 
 void Matrix::handle()
 {
   FastLED.show();
-  frame++;
   EVERY_N_SECONDS(1)
   {
-    ESP_LOGI('Led driver', "fps: %d", frame);
-    frame = 0;
+    ESP_LOGI('Led driver', "fps: %d", FastLED.getFPS());
   }
 };
 
@@ -80,7 +86,6 @@ void Matrix::fadeToBlack(uint8_t step)
 void Matrix::drawPixelXY(int8_t x, int8_t y, CRGB color)
 {
   int pixel = matrix_map[std::make_pair(x, y)].pixel;
-  
   if (pixel != -1)
     leds[pixel] = color;
 };

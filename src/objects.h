@@ -10,7 +10,7 @@ struct Data
 
     boolean on = true;            //Состояние вкл\выкл
     int8_t codeWork = 1;          //Режим работы при запуске
-    uint8_t currentAnimation = 4; //Текущая анимация
+    std::string currentAnimation = "presence_effect"; //Текущая анимация
     uint8_t brightness = 50;      //Текущая яркость
     boolean isChange = false;
 
@@ -18,26 +18,11 @@ struct Data
 
     uint8_t width = 0;
     uint8_t height = 0;
-
-    std::string toString()
-    {
-        char buffer[5];
-        std::string msg = "";
-        msg.append(itoa(codeWork, buffer, 10));
-        msg += ";";
-        return msg;
-    }
-
-    std::string toJSON()
-    {
-        std::string msg = "";
-        StaticJsonDocument<1024> json;
-        json["on"] = this->on;
-        json["codeWork"] = this->codeWork;
-        json["currentAnimation"] = this->currentAnimation;
-        serializeJson(json, msg);
-        return msg;
-    }
+    uint8_t max_width = 0;
+    uint8_t max_height = 0;
+    uint8_t offset_width = 0;
+    uint8_t offset_height = 0;
+    uint8_t offset_leds = 0;
 };
 
 struct DefaultPixel
