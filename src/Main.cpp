@@ -12,7 +12,7 @@
 // #include "Animations/Confetti.h"
 // #include "Animations/Rain.h"
 #include "Animations/Presence.h"
-// #include "Animations/Manual.h"
+#include "Animations/Manual.h"
 
 #include <WiFi.h>
 
@@ -61,6 +61,8 @@ void setup()
                                                         vTaskAnimation, "Matrix", 4096, NULL, 1, &animationTask, 1));
     Serial.printf("Initialization Wi-Fi ... %d\n", xTaskCreatePinnedToCore(
                                                        vTaskWIFI, "WiFi", 4196, NULL, 2, &wifiTask, 0));
+    // Serial.printf("Initialization I2C ... %d\n", xTaskCreatePinnedToCore(
+    //                                                  vTaskI2C, "I2C", 2698, NULL, 3, &i2cTask, 1));
 
     for (uint16_t i = 0; i < sizeof(data->buffer) / sizeof(*data->buffer); i++)
         data->buffer[i] = -1;
@@ -81,21 +83,27 @@ void vTaskAnimation(void *pvParameters)
     // effects["rain"] = new Rain();
     effects["presence_effect"] = new Presence();
     effects["presence_effect"]->fromJSON(config);
-    // effects["manual"] = new Manual();
+    effects["manual"] = new Manual();
+    effects["manual"]->fromJSON(config);
 
     while (true)
     {
-        try
+        if (data->codeWork == 1)
         {
             effects[data->currentAnimation]->render(matrix);
-            effects[data->currentAnimation]->fromJSON(config);
-            // effects[data->currentAnimation]->toJSON(config);
-            // serializeJson(config["effects"], Serial);
         }
-        catch (std::exception e)
+        else if (data->codeWork == 2)
         {
-            Serial.printf("catch: %s\nAnimation: %s", e.what(), data->currentAnimation.c_str());
+            effects["manual"]->render(matrix);
         }
+        else
+        {
+            matrix->clear();
+        }
+
+        // effects[data->currentAnimation]->fromJSON(config);
+        // effects[data->currentAnimation]->toJSON(config);
+        // serializeJson(config["effects"], Serial);
 
         matrix->handle();
         vTaskDelay(10); //40
@@ -118,6 +126,7 @@ void vTaskCLI(void *pvParameters)
 
     //Effects
     Command cmdEffect;
+    Command cmdDraw;
 
     //System commands
     Command cmdConfig;
@@ -141,9 +150,25 @@ void vTaskCLI(void *pvParameters)
     cmdEffect.addPositionalArgument("name", "color");
     cmdEffect.addFlagArgument("load");
     cmdEffect.addPositionalArgument("data", "{}");
+    cmdEffect.setDescription(" Controlling Effect Parameters");
+
+    //draw rectangle x1 y1 x2 y2 color
+    //draw line x1 y1 x2 y2 color
+    //draw circle x y radius color
+    //draw fill
+    //draw image filename
+    cmdDraw = cli.addCommand("draw");
+    cmdDraw.addPositionalArgument("type", "fill");
+    cmdDraw.addArgument("color", "#ffffff");
+    cmdDraw.setDescription(" Drawing on the matrix");
 
     //System commands
-    cmdConfig = cli.addSingleArgumentCommand("config");
+    cmdConfig = cli.addCommand("config");
+    cmdConfig.addPositionalArgument("name", "fast_led");
+    cmdConfig.addFlagArgument("load");
+    cmdConfig.addFlagArgument("save");
+    cmdConfig.addFlagArgument("flash");
+    cmdConfig.addPositionalArgument("data", "{}");
     cmdConfig.setDescription(" load/save config file");
 
     cmdListDir = cli.addCommand("dir");
@@ -175,96 +200,124 @@ void vTaskCLI(void *pvParameters)
         if (cli.available())
         {
             Command c = cli.getCmd();
-            std::string args;
 
-            try
+            Serial.printf("> %s\r\n", lastCommand.c_str());
+
+            if (c == cmdMode)
             {
-                if (c == cmdMode)
-                {
-                    matrix->clear();
-                    data->codeWork = c.getArg(0).getValue().toInt();
-                    ESP_LOGI('CLI', "Set codeWork: %d", data->codeWork);
-                }
-                else if (c == cmdRestart)
-                {
-                    ESP_LOGI('CLI', "Restarting...");
-                    while (1)
-                        ESP.restart();
-                }
-                else if (c == cmdInfo)
-                {
-                    logoPrint();
-                    Serial.printf("Name device: %s\nCode version: %s\r\n", NAME_DEVICE, VERSION);
-                    Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(uartTask), uxTaskGetStackHighWaterMark(uartTask));
-                    Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(i2cTask), uxTaskGetStackHighWaterMark(i2cTask));
-                    Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(wifiTask), uxTaskGetStackHighWaterMark(wifiTask));
-                    Serial.printf("Task (%s): free %d bytes\n", pcTaskGetTaskName(cliTask), uxTaskGetStackHighWaterMark(cliTask));
-                    Serial.printf("Task (%s): free %d bytes\r\n", pcTaskGetTaskName(animationTask), uxTaskGetStackHighWaterMark(animationTask));
+                matrix->clear();
+                data->codeWork = c.getArg(0).getValue().toInt();
+                Serial.printf("CLI: Set codeWork: %d\r\n", data->codeWork);
+            }
+            else if (c == cmdRestart)
+            {
+                Serial.printf("CLI: CPU restarting...\r\n");
+                while (1)
+                    ESP.restart();
+            }
+            else if (c == cmdInfo)
+            {
+                logoPrint();
+                Serial.printf("Name device: %s\r\nCode version: %s\r\n", NAME_DEVICE, VERSION);
+                Serial.printf("Task (%s): free %d bytes\r\n", pcTaskGetTaskName(uartTask), uxTaskGetStackHighWaterMark(uartTask));
+                Serial.printf("Task (%s): free %d bytes\r\n", pcTaskGetTaskName(i2cTask), uxTaskGetStackHighWaterMark(i2cTask));
+                Serial.printf("Task (%s): free %d bytes\r\n", pcTaskGetTaskName(wifiTask), uxTaskGetStackHighWaterMark(wifiTask));
+                Serial.printf("Task (%s): free %d bytes\r\n", pcTaskGetTaskName(cliTask), uxTaskGetStackHighWaterMark(cliTask));
+                Serial.printf("Task (%s): free %d bytes\r\n", pcTaskGetTaskName(animationTask), uxTaskGetStackHighWaterMark(animationTask));
 
-                    Serial.printf("Free Heap: %d bytes\r\n", ESP.getFreeHeap());
+                Serial.printf("Free Heap: %d bytes\r\n", ESP.getFreeHeap());
 
+                serializeJsonPretty(config, Serial);
+                Serial.println();
+            }
+            else if (c == cmdHelp)
+            {
+                Serial.println("Help:");
+                Serial.println(cli.toString());
+            }
+            else if (c == cmdListDir)
+            {
+                listDir(SPIFFS, "/", 0);
+            }
+            else if (c == cmdConfig)
+            {
+                if (c.getArgument("flash").isSet())
+                {
+                    readConfig(SPIFFS, "/config.json", config);
                     serializeJsonPretty(config, Serial);
+                    Serial.println();
+                    readConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix);
+                    serializeJsonPretty(json_matrix, Serial);
+                    Serial.println();
                 }
-                else if (c == cmdHelp)
+                else if (c.getArgument("load").isSet())
                 {
-                    Serial.println("Help:");
-                    Serial.println(cli.toString());
-                }
-                else if (c == cmdListDir)
-                {
-                    listDir(SPIFFS, "/", 0);
-                }
-                else if (c == cmdConfig)
-                {
-                    if (c.getArg(0).getValue() == "load")
-                    {
-                        readConfig(SPIFFS, "/config.json", config);
-                        serializeJsonPretty(config, Serial);
-                        Serial.println();
-                        readConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix);
-                        serializeJsonPretty(json_matrix, Serial);
-                        Serial.println();
-                    }
-                    else if (c.getArg(0).getValue() == "save")
-                    {
-                        config["version"] = VERSION;
-                        saveConfig(SPIFFS, "/config.json", config);
-                        saveConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix);
-                    }
-                }
-                else if (c == cmdEffect)
-                {
-                    //effect -name presence_effect -load -data "{\"warm_light\":\"#ff0000\",\"cool_light\":\"#dcc8dc\",\"brightness\":50,\"periodicity\":1000,\"chance_off\":2,\"count_elem\":8}"
-                    if (c.getArgument("load").isSet())
-                    {
-                        DynamicJsonDocument props(512);
-                        DeserializationError err = deserializeJson(props, c.getArgument("data").getValue().c_str());
+                    //config -name fast_led -load -data "{\"matrix_file\":\"/matrix1.json\",\"temperature\":\"#FFC58F\",\"correction\":\"#d77070\",\"power_limit\":{\"volts\":12,\"milliamps\":5000}}"
+                    DynamicJsonDocument new_config(512);
+                    DeserializationError err = deserializeJson(new_config, c.getArgument("data").getValue().c_str());
 
-                        if (err)
-                        {
-                            Serial.print(F("deserializeJson() failed with code "));
-                            Serial.println(err.c_str());
-                        }
-                        props.shrinkToFit();
-                        if (config["effects"].containsKey(c.getArgument("name").getValue()))
-                        {
-                            config["effects"][c.getArgument("name").getValue()].clear();
-                            config["effects"][c.getArgument("name").getValue()] = props;
-                        }
-                        else
-                        {
-                            config["effects"].createNestedObject(c.getArgument("name").getValue());
-                            config["effects"][c.getArgument("name").getValue()] = props;
-                        }
+                    if (err)
+                    {
+                        Serial.print(F("deserializeJson() failed with code "));
+                        Serial.println(err.c_str());
+                    }
+                    new_config.shrinkToFit();
+                    if (config.containsKey(c.getArgument("name").getValue()))
+                    {
+                        config[c.getArgument("name").getValue()].clear();
+                        config[c.getArgument("name").getValue()] = new_config;
+                    }
+
+                    if (c.getArgument("name").getValue() == "fast_led")
+                        matrix->reinit(config);
+                }
+                else if (c.getArgument("save").isSet())
+                {
+                    config["version"] = VERSION;
+                    saveConfig(SPIFFS, "/config.json", config);
+                    saveConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix);
+                }
+            }
+            else if (c == cmdEffect)
+            {
+                //effect -name presence_effect -load -data "{\"warm_light\":\"#ff0000\",\"cool_light\":\"#dcc8dc\",\"brightness\":50,\"periodicity\":1000,\"chance_off\":2,\"count_elem\":8}"
+                if (c.getArgument("load").isSet())
+                {
+                    DynamicJsonDocument props(512);
+                    DeserializationError err = deserializeJson(props, c.getArgument("data").getValue().c_str());
+
+                    if (err)
+                    {
+                        Serial.print(F("deserializeJson() failed with code "));
+                        Serial.println(err.c_str());
+                    }
+                    props.shrinkToFit();
+                    if (config["effects"].containsKey(c.getArgument("name").getValue()))
+                    {
+                        config["effects"][c.getArgument("name").getValue()].clear();
+                        config["effects"][c.getArgument("name").getValue()] = props;
                     }
                     else
-                        data->currentAnimation = c.getArgument("name").getValue().c_str();
+                    {
+                        config["effects"].createNestedObject(c.getArgument("name").getValue());
+                        config["effects"][c.getArgument("name").getValue()] = props;
+                    }
+                    effects[c.getArgument("name").getValue().c_str()]->fromJSON(config);
+                }
+                else
+                    data->currentAnimation = c.getArgument("name").getValue().c_str();
+            }
+            else if (c == cmdDraw)
+            {
+                if (c.getArgument("type").getValue() == "fill")
+                {
+                    data->codeWork = 2;
+                    matrix->clear();
+                    std::string color = c.getArgument("color").getValue().c_str();
+                    fill_solid(matrix->leds, matrix->count, strtol(color.erase(0, 1).c_str(), NULL, 16));
                 }
             }
-            catch (std::exception e)
-            {
-                Serial.printf("catch: %s\n>: %s", e.what(), lastCommand.c_str());
-            }
+            Serial.flush();
         }
         if (cli.errored())
         {
@@ -279,6 +332,7 @@ void vTaskCLI(void *pvParameters)
                 Serial.print(cmdError.getCommand().toString());
                 Serial.println("\"?");
             }
+            Serial.flush();
         }
         vTaskDelay(10);
     }
@@ -286,7 +340,7 @@ void vTaskCLI(void *pvParameters)
 
 void vTaskUART(void *pvParameters)
 {
-#define UART_BUFFER_SIZE 512
+#define UART_BUFFER_SIZE 1024
     std::string newCommand;
     uint8_t buff[UART_BUFFER_SIZE];
     while (true)
@@ -313,28 +367,23 @@ void vTaskI2C(void *pvParameters)
 {
 #define SDA_PIN 21
 #define SCL_PIN 22
+    uint8_t nDevice = config["interfaces"]["i2c"]["address"].as<int>();
+
     Wire.begin(SDA_PIN, SCL_PIN);
 
-    uint8_t devices[3];
-    uint8_t nDevices = 3;
-    devices[0] = 0x07;
-    devices[1] = 0x18;
-    devices[2] = 0x98;
     while (true)
     {
-        for (uint8_t id = 0; id < nDevices; id++)
+        for (uint8_t id_offset = 1; id_offset < 10; id_offset++)
         {
             WirePacker packer;
             packer.write(data->messageI2C.c_str());
             packer.end();
-            Wire.beginTransmission(devices[id]);
+            Wire.beginTransmission(nDevice + id_offset);
             while (packer.available())
                 Wire.write(packer.read());
-            uint8_t state = Wire.endTransmission(true);
+            Wire.endTransmission(true);
             Wire.flush();
-            vTaskDelay(15);
-            if (state != 0 && state != 2)
-                ESP_LOGE('i2c', "state: %d (%s), device: %d", state, Wire.getErrorText(state), id);
+            vTaskDelay(50);
         }
         vTaskDelay(170);
     }
@@ -354,9 +403,8 @@ void vTaskWIFI(void *pvParameters)
         ESP_LOGI('WIFI', "connecting to WiFi network");
         vTaskDelay(500);
     }
-    ESP_LOGI('WIFI', "connected to WiFi");
     IPAddress local_adr = WiFi.localIP();
-    ESP_LOGI('WIFI', "IP adddr: %d.%d.%d.%d", local_adr[0], local_adr[1], local_adr[2], local_adr[3]);
+    Serial.printf("WiFi connected\n\rIP adddr: %d.%d.%d.%d\r\n", local_adr[0], local_adr[1], local_adr[2], local_adr[3]);
     server = WiFiServer(1234);
     server.begin();
     while (true)
@@ -364,8 +412,6 @@ void vTaskWIFI(void *pvParameters)
         WiFiClient client = server.available();
         if (client)
         {
-            vTaskSuspend(i2cTask);
-
             while (client.connected())
             {
                 int size = 0;
@@ -387,16 +433,13 @@ void vTaskWIFI(void *pvParameters)
                     elem = strtok(message, ",");
                     while (elem != NULL)
                     {
-                        Serial.println();
                         if (atoi(elem) == 9999)
                         {
-                            Serial.println("work 2");
                             data->codeWork = 2;
                             matrix->clear();
                         }
                         else if (atoi(elem) == 7777)
                         {
-                            Serial.println("fill");
                             int from = atoi(strtok(NULL, ","));
                             int to = atoi(strtok(NULL, ","));
                             for (int i = from; i < to; i++)
@@ -407,7 +450,6 @@ void vTaskWIFI(void *pvParameters)
                         }
                         else
                         {
-                            Serial.print(elem);
                             data->buffer[index] = atoi(elem);
                             ++index;
                         }
@@ -418,7 +460,6 @@ void vTaskWIFI(void *pvParameters)
             }
             matrix->clear();
             data->codeWork = 1;
-            vTaskResume(i2cTask);
         }
         client.stop();
         vTaskDelay(30);
