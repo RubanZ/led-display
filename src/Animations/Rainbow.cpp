@@ -31,7 +31,7 @@ void Rainbow::render(Matrix *fmatrix)
     fmatrix->fadeToOn(brightness);
     if (millis() - time_last_update >= periodicity)
     {
-        for (int16_t x = 0; x < fmatrix->data->width; x++)
+        for (int16_t x = 0; x < 80; x++)
         {
             if (angel == 0)
             {

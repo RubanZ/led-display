@@ -16,13 +16,13 @@ struct Data
 
     long time = 0;
 
-    uint8_t width = 0;
-    uint8_t height = 0;
-    uint8_t max_width = 0;
-    uint8_t max_height = 0;
-    uint8_t offset_width = 0;
-    uint8_t offset_height = 0;
-    uint8_t offset_leds = 0;
+    uint16_t width = 0;
+    uint16_t height = 0;
+    uint16_t max_width = 0;
+    uint16_t max_height = 0;
+    uint16_t offset_width = 0;
+    uint16_t offset_height = 0;
+    uint16_t offset_leds = 0;
 };
 
 struct DefaultPixel

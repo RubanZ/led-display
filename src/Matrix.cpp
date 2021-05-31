@@ -11,11 +11,12 @@ void Matrix::init(Data *fdata, JsonDocument &fmatrx_json, JsonDocument &fconfig_
     JsonArray array = block.as<JsonArray>();
     if (data->height < array[1].as<int>() + array[3].as<int>())
       data->height = array[1].as<int>() + array[3].as<int>();
-    if (data->width < array[0].as<int>() + array[2].as<int>())
-      data->width = array[0].as<int>() + array[2].as<int>();
+    // if (data->width < array[0].as<int>() + array[2].as<int>())
+    //   data->width = array[0].as<int>() + array[2].as<int>();
 
     for (uint8_t x = array[2].as<int>(); x < array[0].as<int>() + array[2].as<int>(); x++)
     {
+      data->width += 1; 
       for (uint8_t y = array[3].as<int>(); y < array[1].as<int>() + array[3].as<int>(); y++)
       {
         matrix_map[std::make_pair(array[2].as<int>() + x, y)].pixel = pixel;
@@ -34,6 +35,8 @@ void Matrix::init(Data *fdata, JsonDocument &fmatrx_json, JsonDocument &fconfig_
   data->offset_width = fmatrx_json["offset_width"].as<int>();
   data->offset_height = fmatrx_json["offset_height"].as<int>();
   data->offset_leds = fmatrx_json["offset_leds"].as<int>();
+  serializeJson(fmatrx_json, Serial);
+  Serial.printf("%d, %d, %d (%s)",data->offset_width, data->offset_height, data->offset_leds, fmatrx_json["offset_leds"].as<std::string>() );
 
   FastLED.addLeds<LED_TYPE, 19, COLOR_ORDER>(leds, count + 1);
   FastLED.setCorrection(strtol(fconfig_json["fast_led"]["correction"].as<std::string>().erase(0, 1).c_str(), NULL, 16));
@@ -100,8 +103,11 @@ void Matrix::drawPixelXY(int8_t x, int8_t y, CRGB color)
 
 void Matrix::drawPixel(int16_t pixel, CRGB color)
 {
-  if (pixel >= data->offset_leds && pixel <= data->offset_leds + count)
-    leds[pixel] = color;
+  if (pixel >= data->offset_leds && pixel < data->offset_leds + count - 1){
+    leds[pixel-data->offset_leds] = color;
+    // Serial.printf("pixel: (%d)%d", pixel, pixel-data->offset_leds);
+  }
+    
 };
 
 uint32_t Matrix::getPixColorXY(int8_t x, int8_t y)
@@ -115,7 +121,7 @@ uint32_t Matrix::getPixColorXY(int8_t x, int8_t y)
 uint32_t Matrix::getPixColor(int16_t pixel)
 {
   if (pixel >= data->offset_leds && pixel <= data->offset_leds + count)
-    return (((uint32_t)leds[pixel].r << 16) | ((long)leds[pixel].g << 8) | (long)leds[pixel].b);
+    return (((uint32_t)leds[pixel-data->offset_leds].r << 16) | ((long)leds[pixel-data->offset_leds].g << 8) | (long)leds[pixel-data->offset_leds].b);
   return -1;
 }
 

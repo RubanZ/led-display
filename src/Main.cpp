@@ -44,7 +44,7 @@ void vTaskAnimation(void *pvParameters);
 void setup()
 {
     Serial.begin(115200);
-    Serial.setTimeout(100);
+    Serial.setTimeout(500);
     logoPrint();
     Serial.flush();
     Serial.printf("Initialization File System ... %d\n", initFileSystem());
@@ -228,6 +228,8 @@ void vTaskCLI(void *pvParameters)
                 Serial.printf("Free Heap: %d bytes\r\n", ESP.getFreeHeap());
 
                 serializeJsonPretty(config, Serial);
+                Serial.println();
+                serializeJsonPretty(json_matrix, Serial);
                 Serial.println();
             }
             else if (c == cmdHelp)
