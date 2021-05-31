@@ -42,6 +42,14 @@ void Matrix::init(Data *fdata, JsonDocument &fmatrx_json, JsonDocument &fconfig_
   FastLED.setMaxPowerInVoltsAndMilliamps(strtol(fconfig_json["fast_led"]["power_limit"]["volts"].as<std::string>().c_str(), NULL, 10), strtol(fconfig_json["fast_led"]["power_limit"]["milliamps"].as<std::string>().c_str(), NULL, 10));
 };
 
+void Matrix::reinit(JsonDocument &fconfig_json)
+{
+  FastLED.setCorrection(strtol(fconfig_json["fast_led"]["correction"].as<std::string>().erase(0, 1).c_str(), NULL, 16));
+  FastLED.setTemperature(strtol(fconfig_json["fast_led"]["temperature"].as<std::string>().erase(0, 1).c_str(), NULL, 16));
+  FastLED.setMaxPowerInVoltsAndMilliamps(strtol(fconfig_json["fast_led"]["power_limit"]["volts"].as<std::string>().c_str(), NULL, 10), strtol(fconfig_json["fast_led"]["power_limit"]["milliamps"].as<std::string>().c_str(), NULL, 10));
+};
+
+
 void Matrix::handle()
 {
   FastLED.show();
@@ -90,10 +98,23 @@ void Matrix::drawPixelXY(int8_t x, int8_t y, CRGB color)
     leds[pixel] = color;
 };
 
+void Matrix::drawPixel(int16_t pixel, CRGB color)
+{
+  if (pixel >= data->offset_leds && pixel <= data->offset_leds + count)
+    leds[pixel] = color;
+};
+
 uint32_t Matrix::getPixColorXY(int8_t x, int8_t y)
 {
   int pixel = matrix_map[std::make_pair(x, y)].pixel;
   if (pixel != -1)
+    return (((uint32_t)leds[pixel].r << 16) | ((long)leds[pixel].g << 8) | (long)leds[pixel].b);
+  return -1;
+}
+
+uint32_t Matrix::getPixColor(int16_t pixel)
+{
+  if (pixel >= data->offset_leds && pixel <= data->offset_leds + count)
     return (((uint32_t)leds[pixel].r << 16) | ((long)leds[pixel].g << 8) | (long)leds[pixel].b);
   return -1;
 }

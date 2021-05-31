@@ -22,6 +22,7 @@ public:
     uint16_t count = 0;
 
     void init(Data *fdata, JsonDocument &fjson, JsonDocument &fconfig_json);
+    void reinit(JsonDocument &fconfig_json);
     void handle();
     void clear();
 
@@ -33,9 +34,11 @@ public:
 
     // функция записывающая пиксель по координатам
     void drawPixelXY(int8_t x, int8_t y, CRGB color);
+    void drawPixel(int16_t pixel, CRGB color);
 
     // функция получения цвета пикселя в матрице по его координатам
     uint32_t getPixColorXY(int8_t x, int8_t y);
+    uint32_t getPixColor(int16_t pixel);
 
     int8_t getYtoX(int8_t x);
 
