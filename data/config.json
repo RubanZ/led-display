@@ -12,9 +12,6 @@
         "wifi": {
             "ssid": "Keenetic-7169_2",
             "password": "ces2d9Hm"
-        },
-        "i2c": {
-            "address": 4
         }
     },
     "standby_mode": {
@@ -39,6 +36,10 @@
             "angel": 0,
             "offset": 1,
             "last_hue": 0
+        },
+        "manual": {
+            "brightness": 50,
+            "light": "#ffffff"
         }
     }
 }
