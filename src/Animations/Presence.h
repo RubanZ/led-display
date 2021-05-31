@@ -13,8 +13,6 @@ public:
     void fromJSON(JsonDocument& document);
 
 private:
-    void confetti(Matrix *fmatrix);
-
     CRGB randomColor();
 
     CRGB warm_light = CRGB(255, 0, 0);

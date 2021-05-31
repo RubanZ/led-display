@@ -17,12 +17,12 @@ void Rainbow::fromJSON(JsonDocument &document)
 
 void Rainbow::toJSON(JsonDocument &document)
 {
-    document["effects"]["rainbow"]["brightness"] = this->brightness;
-    document["effects"]["rainbow"]["periodicity"] = this->periodicity;
-    document["effects"]["rainbow"]["direction"] = this->direction;
-    document["effects"]["rainbow"]["angel"] = this->angel;
+    document["brightness"] = this->brightness;
+    document["periodicity"] = this->periodicity;
+    document["direction"] = this->direction;
+    document["angel"] = this->angel;
     // document["effects"]["rainbow"]["last_hue"] = this->last_hue;
-    document["effects"]["rainbow"]["offset"] = this->offset;
+    document["offset"] = this->offset;
 }
 
 void Rainbow::render(Matrix *fmatrix)
