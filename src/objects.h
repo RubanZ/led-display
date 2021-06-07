@@ -4,6 +4,8 @@
 
 struct Data
 {
+    QueueHandle_t queue_cli = xQueueCreate(1, sizeof(1024));
+
     std::string message;    //Буфер сообщения STRING
     std::string messageI2C; //Буфер сообщения STRING
     int buffer[500];        //Буфер сообщения INT
@@ -24,6 +26,8 @@ struct Data
     uint16_t offset_height = 0;
     uint16_t offset_leds = 0;
 };
+
+
 
 struct DefaultPixel
 {

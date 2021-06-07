@@ -1,0 +1,34 @@
+# изменение глобальных параметров
+config -name fast_led -load -save -data "{\"matrix_file\":\"/matrix1.json\",\"temperature\":\"#FFC58F\",\"correction\":\"#d77070\",\"power_limit\":{\"volts\":12,\"milliamps\":5000}}"
+Структура:
+{
+    "matrix_file": "/matrix4.json", //выбранный конфиг матрицы (matrix1.json ,matrix2.json, matrix3.json, matrix4.json)
+    "temperature": "#FFC58F", //температура цвета
+    "correction": "#FFFFFF", //коррекция цвета
+    "power_limit": { 
+        "volts": 12,
+        "milliamps": 5000
+    } // ограничения по току потребления
+}
+
+
+# изменение эффекта (presence_effect) для записи в файловый раздел отдельно команой config -save
+effect -name presence_effect -load -data "{\"warm_light\":\"#ff0000\",\"cool_light\":\"#dcc8dc\",\"brightness\":50,\"periodicity\":1000,\"chance_off\":2,\"count_elem\":8}"
+Структура:
+{
+    "warm_light": "#f5c896", //цвет 1
+    "cool_light": "#f5c896", //цвет 2
+    "brightness": 70, //яркость
+    "periodicity": 1000, //переодичность
+    "chance_off": 2, //шанс выключения (от 2 до N. больше - меньше)
+    "count_elem": 8 //за один цикл отрисовать элементов
+}
+
+
+# изменение эффекта (manual)  для записи в файловый раздел отдельно команой config -save
+effect -name manual -load -data "{\"brightness\": 50,\"light\":\"#dcc8dc\"}"
+Структура:
+{
+    "brightness": 50, //якркость
+    "light": "#ffffff" //цвет
+}

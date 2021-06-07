@@ -1,7 +1,7 @@
 #pragma once
 
 #define NAME_DEVICE "Seminex"
-#define VERSION "3.0.0"
+#define VERSION "3.1.0"
 
 #include "esp_log.h"
 #include "FileSystem.h"

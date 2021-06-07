@@ -35,8 +35,6 @@ void Matrix::init(Data *fdata, JsonDocument &fmatrx_json, JsonDocument &fconfig_
   data->offset_width = fmatrx_json["offset_width"].as<int>();
   data->offset_height = fmatrx_json["offset_height"].as<int>();
   data->offset_leds = fmatrx_json["offset_leds"].as<int>();
-  serializeJson(fmatrx_json, Serial);
-  Serial.printf("%d, %d, %d (%s)",data->offset_width, data->offset_height, data->offset_leds, fmatrx_json["offset_leds"].as<std::string>() );
 
   FastLED.addLeds<LED_TYPE, 19, COLOR_ORDER>(leds, count + 1);
   FastLED.setCorrection(strtol(fconfig_json["fast_led"]["correction"].as<std::string>().erase(0, 1).c_str(), NULL, 16));
