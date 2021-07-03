@@ -128,7 +128,7 @@ void vTaskUART(void *pvParameters)
         }
         vTaskDelay(70);
     }
-    vTaskDelete(NULL);
+    vTaskDelete(uartTask);
 }
 
 void vTaskI2C(void *pvParameters)
@@ -155,7 +155,7 @@ void vTaskI2C(void *pvParameters)
         }
         vTaskDelay(170);
     }
-    vTaskDelete(NULL);
+    vTaskDelete(i2cTask);
 }
 
 void vTaskWIFI(void *pvParameters)
@@ -175,6 +175,7 @@ void vTaskWIFI(void *pvParameters)
                     xQueueSend(data->queue_cli, &msg, portMAX_DELAY);
                     xTaskCreatePinnedToCore(vTaskCLI, "CLI", 3196, tcp_server, 2, &cliTask, 1);
                 }
+                matrix->handle();
                 vTaskDelay(100);
             }
             matrix->clear();
@@ -183,5 +184,5 @@ void vTaskWIFI(void *pvParameters)
         tcp_server->client.stop();
         vTaskDelay(30);
     }
-    vTaskDelete(NULL);
+    vTaskDelete(wifiTask);
 }

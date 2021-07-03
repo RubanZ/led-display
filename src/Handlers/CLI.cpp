@@ -250,5 +250,5 @@ void vTaskCLI(void *pvParameters)
             elem = strtok(NULL, ",");
         }
     }
-    vTaskDelete(NULL);
+    vTaskDelete(cliTask);
 }
