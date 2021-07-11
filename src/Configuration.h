@@ -1,12 +1,11 @@
 #pragma once
 
-#define NAME_DEVICE "Seminex"
-#define VERSION "3.1.0"
+#define NAME_DEVICE "Mangazeya"
+#define VERSION "3.1.1"
 
 #include "esp_log.h"
 #include "FileSystem.h"
 
-#define USE_DMA
 #include "FastLED.h"
 
 #define LED_TYPE WS2812B // Тип светодиодов
