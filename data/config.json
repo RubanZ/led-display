@@ -1,6 +1,6 @@
 {
     "fast_led": {
-        "matrix_file": "/matrix5.json",
+        "matrix_file": "/matrix6.json",
         "temperature": "#FFC58F",
         "correction": "#FFFFFF",
         "power_limit": {

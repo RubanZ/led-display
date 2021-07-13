@@ -54,6 +54,7 @@ void Matrix::reinit(JsonDocument &fconfig_json)
 void Matrix::handle()
 {
   FastLED.show();
+  FastLED.delay(1000/FRAMES_PER_SECOND); 
   EVERY_N_SECONDS(1)
   {
     ESP_LOGI('Led driver', "fps: %d", FastLED.getFPS());
