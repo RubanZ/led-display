@@ -15,11 +15,11 @@
 
 // WS2812 - 250ns, 625ns, 375ns = 1250ns
 template <uint8_t DATA_PIN, EOrder RGB_ORDER = RGB>
-class WS2815Controller : public ClocklessController<DATA_PIN, C_NS(220), C_NS(360), C_NS(220), RGB_ORDER> {};
+class WS2815Controller : public ClocklessController<DATA_PIN, C_NS(300), C_NS(750), C_NS(300), RGB_ORDER> {};
 
 template<uint8_t DATA_PIN, EOrder RGB_ORDER> class WS2815 : public WS2815Controller<DATA_PIN, RGB_ORDER> {};
 
 
-#define LED_TYPE WS2813  // Тип светодиодов
+#define LED_TYPE WS2815  // Тип светодиодов
 #define COLOR_ORDER GRB  // Цветовая модель матрицы
 
