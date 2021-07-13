@@ -95,6 +95,12 @@ void vTaskAnimation(void *pvParameters)
     {
         if (data->codeWork == 1)
         {
+            // if (config["standby_mode"][0] != ""){
+            //     effects[config["standby_mode"][0]]->render(matrix);
+            // }
+            // else{
+            //     matrix->clear();
+            // }
             effects[data->currentAnimation]->render(matrix);
         }
         else if (data->codeWork == 2)
