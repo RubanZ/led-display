@@ -61,7 +61,7 @@ void setup()
     print.format(serial_port, "[*] Deserialize Matrix Config File ... %d\n", readConfig(SPIFFS, config["fast_led"]["matrix_file"], json_matrix));
 
     print.format(serial_port, "[*] Create Task Matrix ... %d\n", xTaskCreatePinnedToCore(vTaskAnimation, "Matrix", 4096, NULL, 1, &animationTask, 1));
-    print.format(serial_port, "[*] Initialization UART ... %d\n", xTaskCreatePinnedToCore(vTaskUART, "UART", 2248, NULL, 2, &uartTask, 0));
+    print.format(serial_port, "[*] Initialization UART ... %d\n", xTaskCreatePinnedToCore(vTaskUART, "UART", 4096, NULL, 2, &uartTask, 0));
     initCLI();
     print.format(serial_port, "[*] Initialization CLI ... %d\n", 1);
     initWifi();
@@ -133,8 +133,6 @@ void vTaskUART(void *pvParameters)
         {
             std::string msg = serial_port->read();
             handleCLI(serial_port, msg);
-            // xQueueSend(data->queue_cli, &msg, portMAX_DELAY);
-            // xTaskCreatePinnedToCore(vTaskCLI, "CLI", 3196, serial_port, 2, &cliTask, 1);
         }
         vTaskDelay(70);
     }
@@ -178,14 +176,9 @@ void vTaskWIFI(void *pvParameters)
         {
             while (tcp_server->client.connected())
             {
-
                 std::string msg = tcp_server->read();
                 if (msg.length() > 0)
-                {
                     handleCLI(tcp_server, msg);
-                    // xQueueSend(data->queue_cli, &msg, portMAX_DELAY);
-                    // xTaskCreatePinnedToCore(vTaskCLI, "CLI", 3196, tcp_server, 2, &cliTask, 1);
-                }
                 matrix->handle();
                 vTaskDelay(100);
             }

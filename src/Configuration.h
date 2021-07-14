@@ -1,7 +1,7 @@
 #pragma once
 
 #define NAME_DEVICE "Mangazeya"
-#define VERSION "3.1.2"
+#define VERSION "3.1.3"
 
 #include "esp_log.h"
 #include "FileSystem.h"
@@ -14,9 +14,9 @@
 
 
 // WS2812 - 250ns, 625ns, 375ns = 1250ns
-template <uint8_t DATA_PIN, EOrder RGB_ORDER = RGB>
 // v4 C_NS(300), C_NS(750), C_NS(300) (80%)
 // v5 C_NS(370), C_NS(580), C_NS(400)
+template <uint8_t DATA_PIN, EOrder RGB_ORDER = RGB>
 class WS2815Controller : public ClocklessController<DATA_PIN, C_NS(370), C_NS(750), C_NS(350), RGB_ORDER> {};
 
 template<uint8_t DATA_PIN, EOrder RGB_ORDER> class WS2815 : public WS2815Controller<DATA_PIN, RGB_ORDER> {};
