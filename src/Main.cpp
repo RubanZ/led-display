@@ -117,7 +117,7 @@ void vTaskAnimation(void *pvParameters)
         // serializeJson(config["effects"], Serial);
 
         matrix->handle();
-        vTaskDelay(10); //40
+        vTaskDelay(45); //40
     }
     vTaskDelete(NULL);
 }
