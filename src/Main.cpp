@@ -49,6 +49,7 @@ void vTaskCLI(void *pvParameters);
 void vTaskAnimation(void *pvParameters);
 
 void initCLI();
+void handleCLI(Interface *interface, std::string &lastCommand);
 
 void setup()
 {
@@ -62,7 +63,9 @@ void setup()
     print.format(serial_port, "[*] Create Task Matrix ... %d\n", xTaskCreatePinnedToCore(vTaskAnimation, "Matrix", 4096, NULL, 1, &animationTask, 1));
     print.format(serial_port, "[*] Initialization UART ... %d\n", xTaskCreatePinnedToCore(vTaskUART, "UART", 2248, NULL, 2, &uartTask, 0));
     initCLI();
+    print.format(serial_port, "[*] Initialization CLI ... %d\n", 1);
     initWifi();
+    print.format(serial_port, "[*] Initialization WiFi ... %d\n", 1);
     tcp_server->init();
     print.format(serial_port, "[*] Create Task Wi-Fi TCP Server ... %d\n", xTaskCreatePinnedToCore(vTaskWIFI, "WiFi", 4196, NULL, 2, &wifiTask, 0));
 
@@ -129,12 +132,13 @@ void vTaskUART(void *pvParameters)
         if (0 < Serial.available())
         {
             std::string msg = serial_port->read();
-            xQueueSend(data->queue_cli, &msg, portMAX_DELAY);
-            xTaskCreatePinnedToCore(vTaskCLI, "CLI", 3196, serial_port, 2, &cliTask, 1);
+            handleCLI(serial_port, msg);
+            // xQueueSend(data->queue_cli, &msg, portMAX_DELAY);
+            // xTaskCreatePinnedToCore(vTaskCLI, "CLI", 3196, serial_port, 2, &cliTask, 1);
         }
         vTaskDelay(70);
     }
-    vTaskDelete(uartTask);
+    vTaskDelete(NULL);
 }
 
 void vTaskI2C(void *pvParameters)
@@ -161,7 +165,7 @@ void vTaskI2C(void *pvParameters)
         }
         vTaskDelay(170);
     }
-    vTaskDelete(i2cTask);
+    vTaskDelete(NULL);
 }
 
 void vTaskWIFI(void *pvParameters)
@@ -178,8 +182,9 @@ void vTaskWIFI(void *pvParameters)
                 std::string msg = tcp_server->read();
                 if (msg.length() > 0)
                 {
-                    xQueueSend(data->queue_cli, &msg, portMAX_DELAY);
-                    xTaskCreatePinnedToCore(vTaskCLI, "CLI", 3196, tcp_server, 2, &cliTask, 1);
+                    handleCLI(tcp_server, msg);
+                    // xQueueSend(data->queue_cli, &msg, portMAX_DELAY);
+                    // xTaskCreatePinnedToCore(vTaskCLI, "CLI", 3196, tcp_server, 2, &cliTask, 1);
                 }
                 matrix->handle();
                 vTaskDelay(100);
@@ -190,5 +195,5 @@ void vTaskWIFI(void *pvParameters)
         tcp_server->client.stop();
         vTaskDelay(30);
     }
-    vTaskDelete(wifiTask);
+    vTaskDelete(NULL);
 }
